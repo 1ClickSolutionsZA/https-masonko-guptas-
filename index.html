@@ -1238,6 +1238,7 @@
             <button class="nav-btn" data-view="members">Members</button>
             <button class="nav-btn" data-view="contributions">Contributions</button>
             <button class="nav-btn" data-view="loans">Loans</button>
+            <button class="nav-btn" data-view="minutes" id="minutesNav">Meeting Minutes</button>
             <button class="nav-btn" data-view="reports">Reports</button>
             <button class="nav-btn" data-view="chat">Chat</button>
             <button class="nav-btn" data-view="notifications">Notifications</button>
@@ -1513,10 +1514,109 @@
                 </div>
             </div>
             
+            
+            <!-- Meeting Minutes View -->
+            <div id="minutes" class="view">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+                    <h2>Meeting Minutes</h2>
+                    <button class="btn btn-primary" onclick="openModal('newMinutesModal')" id="createMinutesBtn"><span>+ New Meeting Minutes</span></button>
+                </div>
+                
+                <div class="ai-insight">
+                    <div class="ai-insight-title">Meeting Notes Management</div>
+                    <div class="ai-insight-content">
+                        Create professional meeting minutes that can be shared with all members as PDF documents. All minutes are automatically saved and archived for future reference.
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Meeting Date</th>
+                                <th>Meeting Type</th>
+                                <th>Attendees</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="minutesTable">
+                            <!-- Will be populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
             <div id="settings" class="view">
                 <h2>Settings</h2>
                 
-                <div style="max-width: 600px;">
+                <div style="max-width: 800px;">
+                    <h3 style="margin-bottom: 20px; color: var(--accent); font-size: 18px;">🏛️ Elected Positions</h3>
+                    
+                    <div class="ai-insight" style="margin-bottom: 20px;">
+                        <div class="ai-insight-title">Position Management</div>
+                        <div class="ai-insight-content">
+                            Assign members to elected positions. These positions determine access permissions and can be changed at any time (typically during elections or as needed).
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px;">
+                        <div style="background: rgba(10, 26, 42, 0.6); border: 1px solid var(--border); border-radius: 12px; padding: 20px;">
+                            <h4 style="color: var(--accent); margin-bottom: 15px;">Chairperson</h4>
+                            <div class="form-group">
+                                <label>Member</label>
+                                <select id="positionChairperson" onchange="updatePosition('chairperson', this.value)">
+                                    <!-- Populated dynamically -->
+                                </select>
+                            </div>
+                            <div style="font-size: 12px; color: var(--text-muted); margin-top: 10px;" id="chairpersonTerm"></div>
+                        </div>
+                        
+                        <div style="background: rgba(10, 26, 42, 0.6); border: 1px solid var(--border); border-radius: 12px; padding: 20px;">
+                            <h4 style="color: var(--accent); margin-bottom: 15px;">Vice Chairperson</h4>
+                            <div class="form-group">
+                                <label>Member</label>
+                                <select id="positionViceChairperson" onchange="updatePosition('viceChairperson', this.value)">
+                                    <!-- Populated dynamically -->
+                                </select>
+                            </div>
+                            <div style="font-size: 12px; color: var(--text-muted); margin-top: 10px;" id="viceChairpersonTerm"></div>
+                        </div>
+                        
+                        <div style="background: rgba(10, 26, 42, 0.6); border: 1px solid var(--border); border-radius: 12px; padding: 20px;">
+                            <h4 style="color: var(--accent); margin-bottom: 15px;">Treasurer</h4>
+                            <div class="form-group">
+                                <label>Member</label>
+                                <select id="positionTreasurer" onchange="updatePosition('treasurer', this.value)">
+                                    <!-- Populated dynamically -->
+                                </select>
+                            </div>
+                            <div style="font-size: 12px; color: var(--text-muted); margin-top: 10px;" id="treasurerTerm"></div>
+                        </div>
+                        
+                        <div style="background: rgba(10, 26, 42, 0.6); border: 1px solid var(--border); border-radius: 12px; padding: 20px;">
+                            <h4 style="color: var(--accent); margin-bottom: 15px;">Secretary</h4>
+                            <div class="form-group">
+                                <label>Member</label>
+                                <select id="positionSecretary" onchange="updatePosition('secretary', this.value)">
+                                    <!-- Populated dynamically -->
+                                </select>
+                            </div>
+                            <div style="font-size: 12px; color: var(--text-muted); margin-top: 10px;" id="secretaryTerm"></div>
+                        </div>
+                        
+                        <div style="background: rgba(10, 26, 42, 0.6); border: 1px solid var(--border); border-radius: 12px; padding: 20px;">
+                            <h4 style="color: var(--accent); margin-bottom: 15px;">Loan Officer</h4>
+                            <div class="form-group">
+                                <label>Member</label>
+                                <select id="positionLoanOfficer" onchange="updatePosition('loanOfficer', this.value)">
+                                    <!-- Populated dynamically -->
+                                </select>
+                            </div>
+                            <div style="font-size: 12px; color: var(--text-muted); margin-top: 10px;" id="loanOfficerTerm"></div>
+                        </div>
+                    </div>
+                    
                     <h3 style="margin-bottom: 20px; color: var(--accent); font-size: 18px;">Membership Tiers</h3>
                     
                     <div style="background: rgba(10, 26, 42, 0.6); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px;">
@@ -2139,6 +2239,117 @@
         </div>
     </div>
     
+    
+    <!-- New Meeting Minutes Modal -->
+    <div class="modal" id="newMinutesModal">
+        <div class="modal-content" style="max-width: 900px;">
+            <div class="modal-header">
+                <div class="modal-title">Create Meeting Minutes</div>
+                <button class="close-modal" onclick="closeModal('newMinutesModal')">×</button>
+            </div>
+            <form onsubmit="createMinutes(event)">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label>Meeting Date</label>
+                        <input type="date" id="minutesDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Meeting Time</label>
+                        <input type="time" id="minutesTime" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Meeting Type</label>
+                    <select id="minutesType" required>
+                        <option value="">Select Meeting Type</option>
+                        <option value="Monthly General Meeting">Monthly General Meeting</option>
+                        <option value="AGM">Annual General Meeting (AGM)</option>
+                        <option value="Special Meeting">Special Meeting</option>
+                        <option value="Committee Meeting">Committee Meeting</option>
+                        <option value="Emergency Meeting">Emergency Meeting</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Meeting Venue</label>
+                    <input type="text" id="minutesVenue" required placeholder="e.g., Community Hall, Online via Zoom">
+                </div>
+                
+                <h3 style="color: var(--accent); margin: 20px 0 15px; font-size: 16px;">Attendees</h3>
+                
+                <div class="form-group">
+                    <label>Present Members</label>
+                    <div id="attendeesList" style="max-height: 200px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; padding: 10px; background: rgba(0, 0, 0, 0.2);">
+                        <!-- Will be populated with checkboxes -->
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Apologies (Absent)</label>
+                    <textarea id="minutesApologies" rows="2" placeholder="List members who sent apologies"></textarea>
+                </div>
+                
+                <h3 style="color: var(--accent); margin: 20px 0 15px; font-size: 16px;">Agenda & Discussion</h3>
+                
+                <div class="form-group">
+                    <label>Opening & Welcome</label>
+                    <textarea id="minutesOpening" rows="2" placeholder="Opening remarks by Chairperson"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Previous Minutes Review</label>
+                    <textarea id="minutesPreviousReview" rows="2" placeholder="Approval of previous meeting minutes"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Matters Arising</label>
+                    <textarea id="minutesMattersArising" rows="3" placeholder="Updates on action items from previous meeting"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Financial Report (Treasurer)</label>
+                    <textarea id="minutesFinancialReport" rows="4" placeholder="Current balance, contributions received, expenses, etc." required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Loan Applications & Approvals</label>
+                    <textarea id="minutesLoans" rows="3" placeholder="Loan applications discussed and decisions made"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>New Business / General Discussion</label>
+                    <textarea id="minutesNewBusiness" rows="4" placeholder="New topics, proposals, member concerns" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Decisions & Resolutions</label>
+                    <textarea id="minutesDecisions" rows="4" placeholder="Key decisions made and motions passed" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Action Items</label>
+                    <textarea id="minutesActionItems" rows="3" placeholder="Tasks assigned with responsible persons and deadlines"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Next Meeting</label>
+                    <input type="text" id="minutesNextMeeting" placeholder="Date and time for next meeting">
+                </div>
+                
+                <div class="form-group">
+                    <label>Closing Remarks</label>
+                    <textarea id="minutesClosing" rows="2" placeholder="Closing remarks and adjournment time"></textarea>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('newMinutesModal')"><span>Cancel</span></button>
+                    <button type="submit" class="btn btn-primary"><span>Save & Share Minutes</span></button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
     <div class="offline-indicator" id="offlineIndicator">
         ⚠️ You're offline - Changes will sync when connected
     </div>
@@ -2444,12 +2655,21 @@
             currentUser: null, // Will be set on login
             isLoggedIn: false,
             users: [
-                // Pre-seeded accounts - Admin and Treasurer
-                { id: 1, name: 'Admin User', email: 'admin@masonko.com', phone: '0821234567', password: 'admin123', role: 'admin', tier: 3, shares: 3, balance: 14400, joined: '2024-01-15', lastPayment: '2026-01-13', status: 'current', approved: true },
-                { id: 2, name: 'Treasurer User', email: 'treasurer@masonko.com', phone: '0832345678', password: 'treasurer123', role: 'treasurer', tier: 2, shares: 2, balance: 9600, joined: '2024-02-20', lastPayment: '2026-01-13', status: 'current', approved: true },
-                { id: 3, name: 'Loan Officer User', email: 'loanofficer@masonko.com', phone: '0843456789', password: 'member123', role: 'loan-officer', tier: 3, shares: 3, balance: 13800, joined: '2024-03-10', lastPayment: '2026-01-13', status: 'current', approved: true }
+                // Pre-seeded accounts - all members without permanent roles
+                { id: 1, name: 'Admin User', email: 'admin@masonko.com', phone: '0821234567', password: 'admin123', tier: 3, shares: 3, balance: 14400, joined: '2024-01-15', lastPayment: '2026-01-13', status: 'current', approved: true },
+                { id: 2, name: 'Treasurer User', email: 'treasurer@masonko.com', phone: '0832345678', password: 'treasurer123', tier: 2, shares: 2, balance: 9600, joined: '2024-02-20', lastPayment: '2026-01-13', status: 'current', approved: true },
+                { id: 3, name: 'Loan Officer User', email: 'loanofficer@masonko.com', phone: '0843456789', password: 'member123', tier: 3, shares: 3, balance: 13800, joined: '2024-03-10', lastPayment: '2026-01-13', status: 'current', approved: true },
+                { id: 9, name: 'Secretary User', email: 'secretary@masonko.com', phone: '0809012345', password: 'secretary123', tier: 2, shares: 2, balance: 9800, joined: '2024-02-15', lastPayment: '2026-01-13', status: 'current', approved: true }
             ],
             pendingMembers: [],
+            // Elected positions - can be changed/reassigned
+            electedPositions: {
+                chairperson: { memberId: 1, electedDate: '2024-01-20', term: '2024-2025' },
+                viceChairperson: { memberId: 5, electedDate: '2024-01-20', term: '2024-2025' },
+                treasurer: { memberId: 2, electedDate: '2024-01-20', term: '2024-2025' },
+                secretary: { memberId: 9, electedDate: '2024-01-20', term: '2024-2025' },
+                loanOfficer: { memberId: 3, electedDate: '2024-01-20', term: '2024-2025' }
+            },
             tiers: {
                 1: { shares: 1, weeklySubscription: 100, initialInvestment: 1000 },
                 2: { shares: 2, weeklySubscription: 200, initialInvestment: 2000 },
@@ -2457,20 +2677,22 @@
             },
             lateFee: 50,
             members: [
-                { id: 1, name: 'Admin User', email: 'admin@masonko.com', phone: '0821234567', role: 'admin', tier: 3, shares: 3, balance: 14400, joined: '2024-01-15', lastPayment: '2026-01-13', status: 'current' },
-                { id: 2, name: 'Treasurer User', email: 'treasurer@masonko.com', phone: '0832345678', role: 'treasurer', tier: 2, shares: 2, balance: 9600, joined: '2024-02-20', lastPayment: '2026-01-13', status: 'current' },
-                { id: 3, name: 'Loan Officer User', email: 'loanofficer@masonko.com', phone: '0843456789', role: 'loan-officer', tier: 3, shares: 3, balance: 13800, joined: '2024-03-10', lastPayment: '2026-01-13', status: 'current' },
-                { id: 4, name: 'Member 4', email: 'member4@email.com', phone: '0854567890', role: 'member', tier: 2, shares: 2, balance: 9200, joined: '2024-03-25', lastPayment: '2026-01-06', status: 'late' },
-                { id: 5, name: 'Member 5', email: 'member5@email.com', phone: '0865678901', role: 'vice-chair', tier: 1, shares: 1, balance: 4800, joined: '2024-04-05', lastPayment: '2026-01-13', status: 'current' },
-                { id: 6, name: 'Member 6', email: 'member6@email.com', phone: '0876789012', role: 'member', tier: 3, shares: 3, balance: 14100, joined: '2024-04-15', lastPayment: '2026-01-13', status: 'current' },
-                { id: 7, name: 'Member 7', email: 'member7@email.com', phone: '0887890123', role: 'member', tier: 1, shares: 1, balance: 4600, joined: '2024-05-01', lastPayment: '2026-01-13', status: 'current' },
-                { id: 8, name: 'Member 8', email: 'member8@email.com', phone: '0898901234', role: 'member', tier: 2, shares: 2, balance: 9400, joined: '2024-05-10', lastPayment: '2026-01-06', status: 'late' }
+                { id: 1, name: 'Admin User', email: 'admin@masonko.com', phone: '0821234567', tier: 3, shares: 3, balance: 14400, joined: '2024-01-15', lastPayment: '2026-01-13', status: 'current' },
+                { id: 2, name: 'Treasurer User', email: 'treasurer@masonko.com', phone: '0832345678', tier: 2, shares: 2, balance: 9600, joined: '2024-02-20', lastPayment: '2026-01-13', status: 'current' },
+                { id: 3, name: 'Loan Officer User', email: 'loanofficer@masonko.com', phone: '0843456789', tier: 3, shares: 3, balance: 13800, joined: '2024-03-10', lastPayment: '2026-01-13', status: 'current' },
+                { id: 4, name: 'Member 4', email: 'member4@email.com', phone: '0854567890', tier: 2, shares: 2, balance: 9200, joined: '2024-03-25', lastPayment: '2026-01-06', status: 'late' },
+                { id: 5, name: 'Member 5', email: 'member5@email.com', phone: '0865678901', tier: 1, shares: 1, balance: 4800, joined: '2024-04-05', lastPayment: '2026-01-13', status: 'current' },
+                { id: 6, name: 'Member 6', email: 'member6@email.com', phone: '0876789012', tier: 3, shares: 3, balance: 14100, joined: '2024-04-15', lastPayment: '2026-01-13', status: 'current' },
+                { id: 7, name: 'Member 7', email: 'member7@email.com', phone: '0887890123', tier: 1, shares: 1, balance: 4600, joined: '2024-05-01', lastPayment: '2026-01-13', status: 'current' },
+                { id: 8, name: 'Member 8', email: 'member8@email.com', phone: '0898901234', tier: 2, shares: 2, balance: 9400, joined: '2024-05-10', lastPayment: '2026-01-06', status: 'late' },
+                { id: 9, name: 'Secretary User', email: 'secretary@masonko.com', phone: '0809012345', tier: 2, shares: 2, balance: 9800, joined: '2024-02-15', lastPayment: '2026-01-13', status: 'current' }
             ],
             contributions: [],
             loans: [
                 { id: 1, memberId: 3, amount: 10000, term: 6, interest: 10, outstanding: 8500, nextPayment: '2026-02-15', status: 'active' },
                 { id: 2, memberId: 4, amount: 5000, term: 4, interest: 10, outstanding: 3500, nextPayment: '2026-02-15', status: 'active' }
             ],
+            meetingMinutes: [],
             notifications: [
                 { id: 1, type: 'payment', title: 'Payment Received', message: 'A member contributed R 800', time: '2 hours ago', unread: true },
                 { id: 2, type: 'reminder', title: 'Payment Due', message: '3 members have payments due tomorrow', time: '5 hours ago', unread: true },
@@ -2482,6 +2704,33 @@
                 { id: 3, sender: 'Loan Officer User', message: 'Can we discuss investment opportunities at the next meeting?', time: '10:15', isSent: false }
             ]
         };
+        
+        // Helper function to get member's current role(s)
+        function getMemberRoles(memberId) {
+            const roles = [];
+            if (appState.electedPositions.chairperson?.memberId === memberId) roles.push('chairperson');
+            if (appState.electedPositions.viceChairperson?.memberId === memberId) roles.push('vice-chair');
+            if (appState.electedPositions.treasurer?.memberId === memberId) roles.push('treasurer');
+            if (appState.electedPositions.secretary?.memberId === memberId) roles.push('secretary');
+            if (appState.electedPositions.loanOfficer?.memberId === memberId) roles.push('loan-officer');
+            return roles.length > 0 ? roles : ['member'];
+        }
+        
+        // Helper function to check if member has specific permission
+        function hasPermission(memberId, permission) {
+            const roles = getMemberRoles(memberId);
+            
+            const permissions = {
+                'approve_members': ['chairperson', 'treasurer'],
+                'record_payments': ['treasurer', 'chairperson'],
+                'approve_payments': ['treasurer', 'chairperson'],
+                'approve_loans': ['loan-officer', 'chairperson'],
+                'create_minutes': ['secretary', 'chairperson'],
+                'view_reports': ['chairperson', 'treasurer', 'secretary', 'loan-officer', 'vice-chair']
+            };
+            
+            return permissions[permission]?.some(role => roles.includes(role)) || false;
+        }
         
         // Payment Proof Upload Functions
         let currentProofData = null;
@@ -2911,12 +3160,24 @@
             
             const initials = appState.currentUser.name.split(' ').map(n => n[0]).join('');
             document.getElementById('userAvatar').textContent = initials;
-            document.getElementById('userRoleBadge').textContent = appState.currentUser.role.replace('-', ' ').toUpperCase();
             
-            // Show/hide pending approvals section based on role
-            if (appState.currentUser.role === 'admin' || appState.currentUser.role === 'treasurer') {
+            // Get user's current role(s)
+            const roles = getMemberRoles(appState.currentUser.id);
+            const primaryRole = roles[0] || 'member';
+            const roleDisplay = primaryRole.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
+            document.getElementById('userRoleBadge').textContent = roleDisplay;
+            
+            // Show/hide sections based on permissions
+            if (hasPermission(appState.currentUser.id, 'approve_members')) {
                 document.getElementById('pendingApprovalsSection').style.display = 'block';
                 renderPendingMembers();
+            }
+            
+            // Show/hide Meeting Minutes button for secretary/chairperson
+            if (hasPermission(appState.currentUser.id, 'create_minutes')) {
+                document.getElementById('minutesNav').style.display = 'block';
+            } else {
+                document.getElementById('minutesNav').style.display = 'none';
             }
         }
         
@@ -3055,11 +3316,17 @@
                 case 'loans':
                     renderLoans();
                     break;
+                case 'minutes':
+                    renderMinutes();
+                    break;
                 case 'chat':
                     renderChat();
                     break;
                 case 'notifications':
                     renderNotifications();
+                    break;
+                case 'settings':
+                    renderPositions();
                     break;
             }
         }
@@ -3069,13 +3336,16 @@
             const grid = document.getElementById('memberGrid');
             grid.innerHTML = appState.members.map(member => {
                 const tierInfo = appState.tiers[member.tier];
+                const roles = getMemberRoles(member.id);
+                const roleDisplay = roles[0] === 'member' ? 'Member' : roles.map(r => r.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())).join(', ');
+                
                 return `
                 <div class="member-card">
                     <div class="member-header">
                         <div class="member-avatar">${member.name.split(' ').map(n => n[0]).join('')}</div>
                         <div class="member-info">
                             <h3>${member.name}</h3>
-                            <div class="member-role">${member.role.replace('-', ' ')}</div>
+                            <div class="member-role">${roleDisplay}</div>
                         </div>
                     </div>
                     <div style="margin: 15px 0; padding: 12px; background: rgba(0, 217, 180, 0.1); border-radius: 8px; border-left: 3px solid ${member.status === 'late' ? 'var(--danger)' : 'var(--accent)'};">
@@ -3464,6 +3734,11 @@
                     // Pre-fill amount
                     document.getElementById('myPaymentAmount').value = dueAmount;
                 }
+            } else if (modalId === 'newMinutesModal') {
+                // Populate attendees checklist
+                populateAttendeesChecklist();
+                // Set today's date as default
+                document.getElementById('minutesDate').value = new Date().toISOString().split('T')[0];
             }
         }
         
@@ -3742,6 +4017,61 @@
             showNotification('Settings saved successfully!', 'success');
         }
         
+        // Position Management Functions
+        function renderPositions() {
+            const positions = ['chairperson', 'viceChairperson', 'treasurer', 'secretary', 'loanOfficer'];
+            
+            positions.forEach(position => {
+                const select = document.getElementById(`position${position.charAt(0).toUpperCase() + position.slice(1)}`);
+                if (!select) return;
+                
+                const currentPosition = appState.electedPositions[position];
+                
+                // Populate dropdown with all members
+                select.innerHTML = '<option value="">-- Select Member --</option>' + 
+                    appState.members.map(m => 
+                        `<option value="${m.id}" ${currentPosition?.memberId === m.id ? 'selected' : ''}>${m.name}</option>`
+                    ).join('');
+                
+                // Show term info
+                const termDiv = document.getElementById(`${position}Term`);
+                if (termDiv && currentPosition) {
+                    const member = appState.members.find(m => m.id === currentPosition.memberId);
+                    termDiv.textContent = `Elected: ${currentPosition.electedDate} | Term: ${currentPosition.term}`;
+                }
+            });
+        }
+        
+        function updatePosition(positionName, memberId) {
+            if (!memberId) {
+                if (confirm('Remove this position? This will revoke their permissions.')) {
+                    delete appState.electedPositions[positionName];
+                    showNotification('Position cleared', 'success');
+                    renderPositions();
+                    updateUserInterface();
+                }
+                return;
+            }
+            
+            const member = appState.members.find(m => m.id === parseInt(memberId));
+            if (!member) return;
+            
+            if (confirm(`Assign ${member.name} to this position?`)) {
+                appState.electedPositions[positionName] = {
+                    memberId: parseInt(memberId),
+                    electedDate: new Date().toISOString().split('T')[0],
+                    term: new Date().getFullYear() + '-' + (new Date().getFullYear() + 1)
+                };
+                
+                showNotification(`${member.name} assigned as ${positionName.replace(/([A-Z])/g, ' $1').toLowerCase()}!`, 'success');
+                renderPositions();
+                updateUserInterface();
+            } else {
+                // Reset dropdown
+                renderPositions();
+            }
+        }
+        
         function generateReport(type) {
             const summaryDiv = document.getElementById('aiReportSummary');
             summaryDiv.innerHTML = '<div class="loading"></div> Generating AI-powered report...';
@@ -3809,6 +4139,251 @@
                 }
             });
         });
+        
+        // Meeting Minutes Functions
+        function renderMinutes() {
+            const table = document.getElementById('minutesTable');
+            if (!appState.meetingMinutes || appState.meetingMinutes.length === 0) {
+                table.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                            No meeting minutes yet. Click "+ New Meeting Minutes" to create your first minutes.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            table.innerHTML = appState.meetingMinutes.map(minutes => {
+                const attendeeCount = minutes.attendees ? minutes.attendees.length : 0;
+                const statusColor = minutes.status === 'published' ? 'var(--success)' : 'var(--gold)';
+                const statusText = minutes.status === 'published' ? '✓ Published' : '📝 Draft';
+                
+                return `
+                    <tr>
+                        <td>
+                            <strong>${minutes.date}</strong><br>
+                            <span style="font-size: 11px; color: var(--text-muted);">${minutes.time}</span>
+                        </td>
+                        <td>${minutes.type}</td>
+                        <td>${attendeeCount} members present</td>
+                        <td><span style="color: ${statusColor}; font-weight: 600;">${statusText}</span></td>
+                        <td>
+                            <button class="btn btn-secondary" style="padding: 8px 16px;" onclick="viewMinutes(${minutes.id})"><span>View</span></button>
+                            <button class="btn btn-primary" style="padding: 8px 16px; margin-left: 5px;" onclick="downloadMinutesPDF(${minutes.id})"><span>📄 Download</span></button>
+                            ${minutes.status === 'draft' ? 
+                                `<button class="btn btn-primary" style="padding: 8px 16px; margin-left: 5px;" onclick="publishMinutes(${minutes.id})"><span>Publish</span></button>` : 
+                                ''}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        
+        function populateAttendeesChecklist() {
+            const container = document.getElementById('attendeesList');
+            container.innerHTML = appState.members.map(member => `
+                <label style="display: flex; align-items: center; padding: 8px; margin: 5px 0; background: rgba(0, 217, 180, 0.05); border-radius: 6px; cursor: pointer; transition: all 0.2s;">
+                    <input type="checkbox" name="attendees" value="${member.id}" style="width: auto; margin-right: 10px;" checked>
+                    <span style="flex: 1;">${member.name}</span>
+                    <span style="font-size: 11px; color: var(--text-muted);">${member.role}</span>
+                </label>
+            `).join('');
+        }
+        
+        function createMinutes(e) {
+            e.preventDefault();
+            
+            const attendeeCheckboxes = document.querySelectorAll('input[name="attendees"]:checked');
+            const attendees = Array.from(attendeeCheckboxes).map(cb => parseInt(cb.value));
+            
+            const newMinutes = {
+                id: appState.meetingMinutes.length + 1,
+                date: document.getElementById('minutesDate').value,
+                time: document.getElementById('minutesTime').value,
+                type: document.getElementById('minutesType').value,
+                venue: document.getElementById('minutesVenue').value,
+                attendees: attendees,
+                apologies: document.getElementById('minutesApologies').value,
+                opening: document.getElementById('minutesOpening').value,
+                previousReview: document.getElementById('minutesPreviousReview').value,
+                mattersArising: document.getElementById('minutesMattersArising').value,
+                financialReport: document.getElementById('minutesFinancialReport').value,
+                loans: document.getElementById('minutesLoans').value,
+                newBusiness: document.getElementById('minutesNewBusiness').value,
+                decisions: document.getElementById('minutesDecisions').value,
+                actionItems: document.getElementById('minutesActionItems').value,
+                nextMeeting: document.getElementById('minutesNextMeeting').value,
+                closing: document.getElementById('minutesClosing').value,
+                status: 'draft',
+                createdBy: appState.currentUser.name,
+                createdDate: new Date().toISOString()
+            };
+            
+            appState.meetingMinutes.push(newMinutes);
+            
+            showNotification('Meeting minutes saved! You can now publish and share as PDF.', 'success');
+            closeModal('newMinutesModal');
+            e.target.reset();
+            
+            if (document.getElementById('minutes').classList.contains('active')) {
+                renderMinutes();
+            }
+        }
+        
+        function viewMinutes(minutesId) {
+            const minutes = appState.meetingMinutes.find(m => m.id === minutesId);
+            if (!minutes) return;
+            
+            const attendeeNames = minutes.attendees.map(id => {
+                const member = appState.members.find(m => m.id === id);
+                return member ? member.name : '';
+            }).filter(Boolean).join(', ');
+            
+            const viewWindow = window.open('', '_blank', 'width=900,height=700');
+            viewWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Meeting Minutes - ${minutes.date}</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; line-height: 1.8; padding: 40px; max-width: 900px; margin: 0 auto; background: white; color: #333; }
+                        h2 { color: #00D9B4; text-align: center; font-size: 24px; margin-bottom: 5px; }
+                        h3 { color: #666; text-align: center; font-size: 18px; margin-top: 0; }
+                        h4 { color: #00D9B4; margin-top: 25px; margin-bottom: 10px; border-bottom: 2px solid #00D9B4; padding-bottom: 5px; }
+                        hr { border: 1px solid #ddd; margin: 30px 0; }
+                        p { margin: 10px 0; text-align: justify; }
+                        em { color: #666; font-size: 14px; }
+                        @media print { body { padding: 20px; } }
+                    </style>
+                </head>
+                <body>
+                    <h2>MASONKO STOKVEL-GUPTAS</h2>
+                    <h3>MEETING MINUTES</h3>
+                    <hr>
+                    
+                    <p><strong>Date:</strong> ${minutes.date}</p>
+                    <p><strong>Time:</strong> ${minutes.time}</p>
+                    <p><strong>Type:</strong> ${minutes.type}</p>
+                    <p><strong>Venue:</strong> ${minutes.venue}</p>
+                    
+                    <h4>Attendance</h4>
+                    <p><strong>Present:</strong> ${attendeeNames}</p>
+                    ${minutes.apologies ? `<p><strong>Apologies:</strong> ${minutes.apologies}</p>` : ''}
+                    
+                    ${minutes.opening ? `<h4>1. Opening & Welcome</h4><p>${minutes.opening}</p>` : ''}
+                    ${minutes.previousReview ? `<h4>2. Previous Minutes Review</h4><p>${minutes.previousReview}</p>` : ''}
+                    ${minutes.mattersArising ? `<h4>3. Matters Arising</h4><p>${minutes.mattersArising}</p>` : ''}
+                    
+                    <h4>4. Financial Report</h4>
+                    <p>${minutes.financialReport}</p>
+                    
+                    ${minutes.loans ? `<h4>5. Loan Applications & Approvals</h4><p>${minutes.loans}</p>` : ''}
+                    
+                    <h4>6. New Business</h4>
+                    <p>${minutes.newBusiness}</p>
+                    
+                    <h4>7. Decisions & Resolutions</h4>
+                    <p>${minutes.decisions}</p>
+                    
+                    ${minutes.actionItems ? `<h4>8. Action Items</h4><p>${minutes.actionItems}</p>` : ''}
+                    ${minutes.nextMeeting ? `<h4>9. Next Meeting</h4><p>${minutes.nextMeeting}</p>` : ''}
+                    ${minutes.closing ? `<h4>10. Closing</h4><p>${minutes.closing}</p>` : ''}
+                    
+                    <hr>
+                    <p><em>Minutes prepared by: ${minutes.createdBy}</em></p>
+                    <p><em>Date prepared: ${new Date(minutes.createdDate).toLocaleDateString()}</em></p>
+                    <p><em>Status: ${minutes.status}</em></p>
+                    
+                    <div style="margin-top: 40px; text-align: center;">
+                        <button onclick="window.print()" style="padding: 10px 20px; background: #00D9B4; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px;">Print / Save as PDF</button>
+                    </div>
+                </body>
+                </html>
+            `);
+        }
+        
+        function downloadMinutesPDF(minutesId) {
+            const minutes = appState.meetingMinutes.find(m => m.id === minutesId);
+            if (!minutes) return;
+            
+            const attendeeNames = minutes.attendees.map(id => {
+                const member = appState.members.find(m => m.id === id);
+                return member ? member.name : '';
+            }).filter(Boolean).join(', ');
+            
+            let pdfContent = `MASONKO STOKVEL-GUPTAS
+MEETING MINUTES
+
+Date: ${minutes.date}
+Time: ${minutes.time}
+Type: ${minutes.type}
+Venue: ${minutes.venue}
+
+ATTENDANCE
+Present: ${attendeeNames}
+${minutes.apologies ? `Apologies: ${minutes.apologies}` : ''}
+
+${minutes.opening ? `1. OPENING & WELCOME\n${minutes.opening}\n\n` : ''}
+${minutes.previousReview ? `2. PREVIOUS MINUTES REVIEW\n${minutes.previousReview}\n\n` : ''}
+${minutes.mattersArising ? `3. MATTERS ARISING\n${minutes.mattersArising}\n\n` : ''}
+
+4. FINANCIAL REPORT
+${minutes.financialReport}
+
+${minutes.loans ? `5. LOAN APPLICATIONS & APPROVALS\n${minutes.loans}\n\n` : ''}
+
+6. NEW BUSINESS
+${minutes.newBusiness}
+
+7. DECISIONS & RESOLUTIONS
+${minutes.decisions}
+
+${minutes.actionItems ? `8. ACTION ITEMS\n${minutes.actionItems}\n\n` : ''}
+${minutes.nextMeeting ? `9. NEXT MEETING\n${minutes.nextMeeting}\n\n` : ''}
+${minutes.closing ? `10. CLOSING\n${minutes.closing}\n\n` : ''}
+
+---
+Minutes prepared by: ${minutes.createdBy}
+Date prepared: ${new Date(minutes.createdDate).toLocaleDateString()}
+Status: ${minutes.status}
+`;
+            
+            const blob = new Blob([pdfContent], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Meeting_Minutes_${minutes.date}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            
+            showNotification('Meeting minutes downloaded! Share this file with members.', 'success');
+        }
+        
+        function publishMinutes(minutesId) {
+            if (confirm('Publish these minutes? They will be marked as final and shared with all members.')) {
+                const minutes = appState.meetingMinutes.find(m => m.id === minutesId);
+                if (minutes) {
+                    minutes.status = 'published';
+                    minutes.publishedDate = new Date().toISOString();
+                    
+                    const notification = {
+                        id: appState.notifications.length + 1,
+                        type: 'minutes',
+                        title: 'New Meeting Minutes',
+                        message: `Minutes from ${minutes.type} on ${minutes.date} have been published`,
+                        time: 'Just now',
+                        unread: true
+                    };
+                    appState.notifications.unshift(notification);
+                    
+                    renderMinutes();
+                    showNotification('Minutes published and shared with all members!', 'success');
+                }
+            }
+        }
     </script>
 </body>
 </html>
