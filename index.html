@@ -1788,6 +1788,17 @@
             
             <!-- Registration Form -->
             <form class="auth-form" id="registerForm" onsubmit="handleRegister(event)">
+                <!-- Auto-Approval Notice -->
+                <div style="padding: 15px; background: linear-gradient(135deg, rgba(0, 180, 216, 0.15), rgba(0, 122, 77, 0.15)); border-radius: 12px; border-left: 4px solid var(--success); margin-bottom: 20px;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                        <span style="font-size: 24px;">⚡</span>
+                        <strong style="color: var(--success); font-size: 16px;">Instant Approval Active</strong>
+                    </div>
+                    <p style="font-size: 13px; color: var(--text-muted); margin: 0; line-height: 1.5;">
+                        Your account will be <strong style="color: var(--success);">automatically approved</strong> upon registration. You can login immediately after signing up!
+                    </p>
+                </div>
+                
                 <div class="form-group">
                     <label>Full Name</label>
                     <input type="text" id="regName" required placeholder="Enter your full name">
@@ -4556,8 +4567,12 @@
             const tier = parseInt(document.getElementById('regTier').value);
             const tierData = appState.tiers[tier];
             
-            // Create new pending member
+            // Generate next member ID
+            const nextId = Math.max(...appState.users.map(u => u.id), ...appState.members.map(m => m.id)) + 1;
+            
+            // Create new member - AUTO APPROVED (TEMPORARY)
             const newMember = {
+                id: nextId,
                 name: document.getElementById('regName').value.trim(),
                 email: email,
                 phone: phone,
@@ -4568,18 +4583,29 @@
                 balance: 0,
                 joined: new Date().toISOString().split('T')[0],
                 lastPayment: null,
-                status: 'pending',
-                approved: false
+                status: 'current',
+                approved: true  // ✅ AUTO-APPROVED TEMPORARILY
             };
             
             // Save to database
             saveToDB('users', newMember).then(savedUser => {
-                // Add to app state
-                appState.pendingMembers.push(savedUser);
+                // Add to app state (both users and members arrays)
                 appState.users.push(savedUser);
+                appState.members.push({
+                    id: savedUser.id,
+                    name: savedUser.name,
+                    email: savedUser.email,
+                    phone: savedUser.phone,
+                    tier: savedUser.tier,
+                    shares: savedUser.shares,
+                    balance: savedUser.balance,
+                    joined: savedUser.joined,
+                    lastPayment: savedUser.lastPayment,
+                    status: savedUser.status
+                });
                 
                 // Show success message
-                alert(`Registration submitted successfully!\n\nYour application has been sent to the Admin/Treasurer for approval.\n\nYou will receive a notification once your account is approved.\n\nInitial Investment Required: R ${tierData.initialInvestment.toLocaleString()}\nWeekly Subscription: R ${tierData.weeklySubscription}`);
+                alert(`✅ Registration successful!\n\n🎉 Your account has been automatically approved!\n\nYou can now login with:\nEmail: ${email}\nPassword: (your password)\n\n💰 Membership Details:\nTier: ${tier}\nInitial Investment: R ${tierData.initialInvestment.toLocaleString()}\nWeekly Subscription: R ${tierData.weeklySubscription}\n\nWelcome to Masonko Stokvel!`);
                 
                 // Reset form and switch to login
                 e.target.reset();
