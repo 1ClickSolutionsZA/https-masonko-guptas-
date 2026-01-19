@@ -4477,10 +4477,20 @@
             const identifier = document.getElementById('loginIdentifier').value.trim();
             const password = document.getElementById('loginPassword').value;
             
-            // Find user by email or phone
-            const user = appState.users.find(u => 
-                (u.email === identifier || u.phone === identifier) && u.password === password
-            );
+            // Normalize phone number if identifier looks like a phone
+            const normalizedIdentifier = identifier.includes('@') 
+                ? identifier 
+                : formatPhoneForWhatsApp(identifier);
+            
+            // Find user by email or phone (with normalization)
+            const user = appState.users.find(u => {
+                const normalizedUserPhone = formatPhoneForWhatsApp(u.phone);
+                return (
+                    u.email === identifier || 
+                    u.phone === identifier ||
+                    normalizedUserPhone === normalizedIdentifier
+                ) && u.password === password;
+            });
             
             if (user) {
                 if (!user.approved) {
