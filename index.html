@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Masonko Stokvel-Guptas - Investment Club Management</title>
     <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiTWFzb25rbyBTdG9rdmVsLUd1cHRhcyIsInNob3J0X25hbWUiOiJNYXNvbmtvIiwic3RhcnRfdXJsIjoiLiIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZF9jb2xvciI6IiMwQTFBMkEiLCJ0aGVtZV9jb2xvciI6IiMwQTFBMkEifQ==">
     <style>
@@ -12,6 +15,12 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
         
         :root {
@@ -392,7 +401,7 @@
         .hamburger-btn {
             display: none;
             position: fixed;
-            top: 20px;
+            top: 25px;
             right: 20px;
             z-index: 1001;
             background: var(--accent);
@@ -463,6 +472,16 @@
                 display: block;
             }
             
+            /* Hide user info on very small screens */
+            .user-info .role-badge,
+            .user-info .user-avatar {
+                display: none;
+            }
+            
+            .user-info {
+                gap: 0;
+            }
+            
             nav {
                 position: fixed;
                 top: 0;
@@ -479,10 +498,21 @@
                 border: none;
                 border-left: 1px solid var(--border);
                 animation: none;
+                background: var(--secondary);
             }
             
             nav.active {
                 right: 0;
+                animation: slideInRight 0.3s ease-out;
+            }
+            
+            @keyframes slideInRight {
+                from {
+                    right: -100%;
+                }
+                to {
+                    right: 0;
+                }
             }
             
             .nav-btn {
@@ -490,14 +520,29 @@
                 text-align: left;
                 padding: 15px 20px;
                 font-size: 16px;
+                justify-content: flex-start;
             }
             
             header {
                 padding: 15px 20px;
+                position: sticky;
+                top: 0;
+                z-index: 999;
+                background: var(--secondary);
             }
             
             .logo img {
-                height: 50px !important;
+                height: 45px !important;
+            }
+            
+            /* Ensure content is not hidden behind fixed header */
+            .app-container {
+                padding-top: 0;
+            }
+            
+            /* Hide stats on mobile for better performance */
+            #statsCards {
+                margin-top: 10px;
             }
         }
         
@@ -849,6 +894,19 @@
             margin-top: 20px;
         }
         
+        .member-grid.list-view {
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+        
+        .member-grid.list-view .member-card {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 20px;
+            align-items: center;
+            padding: 20px;
+        }
+        
         .member-card {
             background: rgba(10, 26, 42, 0.6);
             border: 1px solid var(--border);
@@ -1110,6 +1168,9 @@
             align-items: center;
             justify-content: center;
             animation: modalFadeIn 0.3s ease-out;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 20px;
         }
         
         @keyframes modalFadeIn {
@@ -1131,11 +1192,13 @@
             padding: 35px;
             max-width: 600px;
             width: 90%;
-            max-height: 90vh;
+            max-height: 85vh;
             overflow-y: auto;
             border: 1px solid var(--border);
             box-shadow: 0 20px 60px var(--shadow);
             animation: modalSlideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            margin: auto;
+            -webkit-overflow-scrolling: touch;
         }
         
         @keyframes modalSlideUp {
@@ -1246,17 +1309,32 @@
         /* Responsive */
         @media (max-width: 768px) {
             .app-container {
-                padding: 15px;
+                padding: 10px;
             }
             
             header {
-                flex-direction: column;
-                gap: 15px;
-                text-align: center;
+                flex-direction: row;
+                justify-content: space-between;
+                gap: 10px;
+                padding: 12px 15px;
             }
             
             .logo {
-                font-size: 28px;
+                font-size: 18px;
+            }
+            
+            .logo img {
+                height: 40px !important;
+            }
+            
+            .user-info {
+                flex-direction: row;
+                align-items: center;
+            }
+            
+            .logout-btn {
+                padding: 8px 15px;
+                font-size: 13px;
             }
             
             nav {
@@ -1265,18 +1343,49 @@
             
             .dashboard {
                 grid-template-columns: 1fr;
+                gap: 15px;
             }
             
             .content-area {
-                padding: 20px;
+                padding: 15px;
             }
             
             h2 {
-                font-size: 26px;
+                font-size: 22px;
+            }
+            
+            .modal {
+                padding: 10px;
+                align-items: flex-start;
+                padding-top: 20px;
             }
             
             .modal-content {
-                padding: 25px;
+                max-width: 100% !important;
+                width: calc(100% - 20px);
+                padding: 20px;
+                margin: 0 10px;
+                border-radius: 12px;
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+            
+            .modal-header {
+                flex-direction: row;
+                align-items: center;
+                gap: 10px;
+            }
+            
+            .modal-title {
+                font-size: 18px;
+                flex: 1;
+            }
+            
+            .close-modal {
+                position: relative;
+                top: 0;
+                right: 0;
+                margin: 0;
             }
             
             .member-grid {
@@ -1286,6 +1395,318 @@
             .chat-message {
                 max-width: 85%;
             }
+            
+            /* Tables responsive */
+            .table-container {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            table {
+                min-width: 600px;
+            }
+            
+            /* Forms */
+            .form-group {
+                margin-bottom: 15px;
+            }
+            
+            .form-group label {
+                font-size: 13px;
+            }
+            
+            input, select, textarea {
+                font-size: 16px !important; /* Prevent zoom on iOS */
+            }
+            
+            /* Buttons */
+            .btn {
+                font-size: 14px;
+                padding: 12px 20px;
+            }
+            
+            .modal-actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .modal-actions .btn {
+                width: 100%;
+            }
+            
+            /* Auth screen */
+            .auth-container {
+                padding: 20px;
+                max-width: 100%;
+            }
+            
+            .auth-logo {
+                font-size: 28px;
+            }
+            
+            .auth-form {
+                padding: 25px 20px;
+            }
+            
+            /* Cards */
+            .card {
+                padding: 20px;
+            }
+            
+            .stat-card {
+                min-height: auto;
+            }
+            
+            /* Member cards */
+            .member-card {
+                margin-bottom: 15px;
+            }
+            
+            /* Dashboard stats */
+            .stat-value {
+                font-size: 28px;
+            }
+            
+            .stat-label {
+                font-size: 12px;
+            }
+            
+            /* Loan application form */
+            #newLoanModal .form-group {
+                margin-bottom: 15px;
+            }
+            
+            /* Guarantor sections */
+            #newLoanModal .form-group > div[style*="grid"] {
+                grid-template-columns: 1fr !important;
+                gap: 10px !important;
+            }
+            
+            /* 2FA Modal */
+            #twoFACode {
+                font-size: 20px !important;
+                letter-spacing: 8px !important;
+                padding: 15px !important;
+            }
+            
+            #twoFAModal .modal-actions > div {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            #twoFAModal .btn {
+                width: 100%;
+            }
+            
+            /* Leadership cards */
+            .leadership-grid {
+                grid-template-columns: 1fr !important;
+            }
+            
+            /* Minutes form */
+            #minutesForm .form-group > div[style*="grid"] {
+                grid-template-columns: 1fr !important;
+            }
+            
+            /* Reports section */
+            div[style*="grid-template-columns: repeat(auto-fit"] {
+                grid-template-columns: 1fr !important;
+            }
+            
+            /* Notifications */
+            .notification {
+                padding: 12px;
+            }
+            
+            .notification-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
+            }
+            
+            /* Toast notifications */
+            div[style*="position: fixed"] {
+                right: 10px !important;
+                left: 10px !important;
+                top: 70px !important;
+                max-width: calc(100% - 20px) !important;
+            }
+            
+            /* User profile dropdown */
+            .user-profile {
+                position: relative;
+            }
+            
+            .profile-dropdown {
+                right: 0;
+                left: auto;
+                min-width: 200px;
+            }
+            
+            /* Voting items */
+            .voting-item {
+                padding: 15px !important;
+            }
+            
+            /* Banking details grid */
+            div[style*="grid-template-columns: 1fr 150px"] {
+                grid-template-columns: 1fr !important;
+            }
+            
+            /* Fix button groups */
+            div[style*="display: grid; grid-template-columns: 1fr 1fr"] {
+                grid-template-columns: 1fr !important;
+            }
+            
+            /* Contribution table actions */
+            td[style*="white-space: nowrap"] {
+                white-space: normal !important;
+            }
+            
+            td[style*="white-space: nowrap"] .btn {
+                width: 100%;
+                margin: 5px 0 !important;
+            }
+        }
+        
+        /* Extra small devices */
+        @media (max-width: 480px) {
+            .app-container {
+                padding: 8px;
+            }
+            
+            .content-area {
+                padding: 10px;
+            }
+            
+            header {
+                padding: 10px 15px;
+            }
+            
+            .logo img {
+                height: 35px !important;
+            }
+            
+            .hamburger-btn {
+                width: 45px;
+                height: 45px;
+                top: 22px;
+                right: 15px;
+            }
+            
+            .hamburger-btn span {
+                width: 22px;
+            }
+            
+            .user-info {
+                margin-right: 55px; /* Make space for hamburger */
+            }
+            
+            h2 {
+                font-size: 20px;
+            }
+            
+            h3 {
+                font-size: 16px;
+            }
+            
+            .modal-content {
+                padding: 15px;
+                width: calc(100% - 10px);
+                margin: 0 5px;
+            }
+            
+            .card {
+                padding: 15px;
+            }
+            
+            .btn {
+                font-size: 13px;
+                padding: 10px 15px;
+            }
+            
+            #twoFACode {
+                font-size: 18px !important;
+                letter-spacing: 5px !important;
+            }
+            
+            .stat-value {
+                font-size: 24px;
+            }
+            
+            table {
+                font-size: 12px;
+            }
+            
+            td, th {
+                padding: 8px 5px;
+            }
+            
+            .logout-btn {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+            
+            nav {
+                width: 260px;
+            }
+        }
+        
+        /* Landscape mobile fix */
+        @media (max-width: 768px) and (orientation: landscape) {
+            .modal {
+                padding: 5px;
+                overflow-y: auto;
+            }
+            
+            .modal-content {
+                max-height: 95vh;
+                overflow-y: auto;
+            }
+        }
+        
+        /* iOS Safari fixes */
+        @supports (-webkit-touch-callout: none) {
+            input, select, textarea {
+                font-size: 16px !important;
+            }
+            
+            .modal {
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+        
+        /* Touch-friendly targets - all clickable elements should be at least 44x44px */
+        button, .btn, a, input[type="checkbox"], input[type="radio"] {
+            min-height: 44px;
+            min-width: 44px;
+            touch-action: manipulation; /* Prevents double-tap zoom */
+        }
+        
+        /* Prevent text selection on buttons */
+        button, .btn {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* Fix for iOS input zoom */
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="number"],
+        input[type="password"],
+        select,
+        textarea {
+            font-size: 16px !important; /* Prevents zoom on iOS */
+        }
+        
+        /* Smooth scrolling for mobile */
+        html {
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
         }
         
         /* AI Insights */
@@ -1569,9 +1990,20 @@
             
             <!-- Members View -->
             <div id="members" class="view">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
                     <h2>Members</h2>
-                    <button class="btn btn-primary" onclick="openModal('addMemberModal')"><span>+ Add Member</span></button>
+                    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                        <!-- View Toggle -->
+                        <div style="display: flex; gap: 5px; background: rgba(0, 0, 0, 0.3); padding: 5px; border-radius: 10px;">
+                            <button id="listViewBtn" class="btn btn-secondary" onclick="switchMemberView('list')" style="padding: 8px 15px; background: var(--accent); border-color: var(--accent);">
+                                <span>📋 List</span>
+                            </button>
+                            <button id="tileViewBtn" class="btn btn-secondary" onclick="switchMemberView('tile')" style="padding: 8px 15px;">
+                                <span>🔲 Tiles</span>
+                            </button>
+                        </div>
+                        <button class="btn btn-primary" id="addMemberBtn" onclick="openModal('addMemberModal')" style="display: none;"><span>+ Add Member</span></button>
+                    </div>
                 </div>
                 
                 <!-- Pending Approvals Section (Admin/Treasurer only) -->
@@ -2206,6 +2638,67 @@
                             <p style="margin: 0; font-size: 13px;">
                                 <strong>Process:</strong> Leadership/Members decide → Meeting minutes document → Admin implements changes here
                             </p>
+                        </div>
+                    </div>
+                    
+                    <!-- WhatsApp Notifications Info -->
+                    <div class="card" style="margin-bottom: 30px; background: linear-gradient(135deg, rgba(37, 211, 102, 0.05), rgba(0, 180, 216, 0.05)); border-left: 4px solid #25D366;">
+                        <h3 style="margin-bottom: 20px; color: #25D366; font-size: 20px; display: flex; align-items: center; gap: 10px;">
+                            <span>📱</span> WhatsApp Notifications - How It Works
+                        </h3>
+                        
+                        <div style="padding: 15px; background: rgba(37, 211, 102, 0.1); border-radius: 8px; margin-bottom: 20px;">
+                            <strong style="color: #25D366; font-size: 16px;">ℹ️ Important Information</strong>
+                            <p style="margin: 10px 0 0 0; line-height: 1.6;">
+                                The system uses WhatsApp's official click-to-chat API which is <strong>100% free</strong> and requires <strong>no API keys</strong>. Here's how it works:
+                            </p>
+                        </div>
+                        
+                        <div style="display: grid; gap: 15px;">
+                            <div style="padding: 15px; background: rgba(0, 0, 0, 0.2); border-radius: 8px; border-left: 3px solid var(--accent);">
+                                <strong style="color: var(--accent);">1️⃣ Message Generation</strong>
+                                <p style="margin: 8px 0 0 0; font-size: 14px; color: var(--text-muted);">
+                                    When a notification is triggered (loan approval, guarantor request, etc.), the system generates a formatted message with all relevant details.
+                                </p>
+                            </div>
+                            
+                            <div style="padding: 15px; background: rgba(0, 0, 0, 0.2); border-radius: 8px; border-left: 3px solid var(--gold);">
+                                <strong style="color: var(--gold);">2️⃣ WhatsApp Opens</strong>
+                                <p style="margin: 8px 0 0 0; font-size: 14px; color: var(--text-muted);">
+                                    WhatsApp opens (either app or web) with the message pre-filled in the <strong>composition box</strong>. The recipient's phone number is already selected.
+                                </p>
+                            </div>
+                            
+                            <div style="padding: 15px; background: rgba(0, 0, 0, 0.2); border-radius: 8px; border-left: 3px solid #25D366;">
+                                <strong style="color: #25D366;">3️⃣ You Click Send</strong>
+                                <p style="margin: 8px 0 0 0; font-size: 14px; color: var(--text-muted);">
+                                    <strong>You must click the Send button in WhatsApp</strong> to actually send the message. This is a WhatsApp security feature - no app can automatically send messages on your behalf.
+                                </p>
+                            </div>
+                            
+                            <div style="padding: 15px; background: rgba(0, 0, 0, 0.2); border-radius: 8px; border-left: 3px solid var(--success);">
+                                <strong style="color: var(--success);">4️⃣ Message Delivered</strong>
+                                <p style="margin: 8px 0 0 0; font-size: 14px; color: var(--text-muted);">
+                                    Once you click send, the message is delivered to the recipient's WhatsApp. They receive it as a normal WhatsApp message.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div style="padding: 15px; background: rgba(230, 126, 34, 0.1); border-radius: 8px; margin-top: 20px; border-left: 4px solid var(--gold);">
+                            <strong style="color: var(--gold);">💡 Why the message appears in the composition box:</strong>
+                            <p style="margin: 8px 0 0 0; font-size: 13px; line-height: 1.6;">
+                                This is <strong>normal behavior</strong> for WhatsApp's click-to-chat API. WhatsApp does not allow apps to automatically send messages (this prevents spam and protects privacy). You need to manually click Send to deliver the message. This is the same for all legitimate business apps using WhatsApp.
+                            </p>
+                        </div>
+                        
+                        <div style="padding: 15px; background: rgba(0, 180, 216, 0.1); border-radius: 8px; margin-top: 15px;">
+                            <strong style="color: var(--accent);">📋 Testing Tips:</strong>
+                            <ul style="margin: 8px 0 0 20px; font-size: 13px; line-height: 1.8; color: var(--text-muted);">
+                                <li>If testing on your own number, the message will open in YOUR WhatsApp</li>
+                                <li>On desktop, it opens WhatsApp Web in a new tab</li>
+                                <li>On mobile, it tries to open the WhatsApp app first</li>
+                                <li>The recipient sees your message just like any other WhatsApp chat</li>
+                            </ul>
                         </div>
                     </div>
                     
@@ -3277,6 +3770,22 @@
     </div>
     
     <script>
+        // ============================================
+        // CONFIGURATION
+        // ============================================
+        
+        // WhatsApp Notification Settings
+        const WHATSAPP_CONFIG = {
+            // Set to true for testing without opening WhatsApp
+            DEVELOPMENT_MODE: false,
+            
+            // Set to true to log messages to console instead of opening WhatsApp
+            LOG_ONLY: false,
+            
+            // Set to true to show confirmation before sending
+            CONFIRM_BEFORE_SEND: false
+        };
+        
         // IndexedDB Database Configuration
         const DB_NAME = 'MasonkoStokveldDB';
         const DB_VERSION = 1;
@@ -4113,6 +4622,17 @@
             }
         }
         
+        function closeMobileMenu() {
+            const nav = document.getElementById('mainNav');
+            const hamburger = document.getElementById('hamburgerBtn');
+            const overlay = document.getElementById('navOverlay');
+            
+            nav.classList.remove('active');
+            hamburger.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        
         // Close mobile menu when a nav button is clicked
         document.addEventListener('DOMContentLoaded', function() {
             const navButtons = document.querySelectorAll('.nav-btn');
@@ -4520,6 +5040,11 @@
             } else {
                 document.getElementById('minutesNav').style.display = 'none';
             }
+            
+            // Initialize data views
+            renderMembers();
+            renderContributions();
+            renderLoans();
         }
         
         function renderPendingMembers() {
@@ -4680,63 +5205,424 @@
         }
         
         // Render Members
-        function renderMembers() {
+        // Member view state
+        let currentMemberView = 'tile'; // 'tile' or 'list'
+        
+        function switchMemberView(view) {
+            currentMemberView = view;
             const grid = document.getElementById('memberGrid');
+            const listBtn = document.getElementById('listViewBtn');
+            const tileBtn = document.getElementById('tileViewBtn');
+            
+            if (view === 'list') {
+                grid.classList.add('list-view');
+                listBtn.style.background = 'var(--accent)';
+                listBtn.style.borderColor = 'var(--accent)';
+                tileBtn.style.background = '';
+                tileBtn.style.borderColor = '';
+            } else {
+                grid.classList.remove('list-view');
+                tileBtn.style.background = 'var(--accent)';
+                tileBtn.style.borderColor = 'var(--accent)';
+                listBtn.style.background = '';
+                listBtn.style.borderColor = '';
+            }
+            
+            renderMembers();
+        }
+        
+        function calculateMemberFinancials(member) {
+            const tierInfo = appState.tiers[member.tier];
+            const today = new Date();
+            const joinedDate = new Date(member.joined);
+            const weeksJoined = Math.floor((today - joinedDate) / (7 * 24 * 60 * 60 * 1000));
+            
+            // Total expected subscriptions
+            const totalExpectedSubscriptions = weeksJoined * tierInfo.weeklySubscription;
+            
+            // Calculate actual payments from balance
+            const totalPaid = member.balance;
+            
+            // Outstanding subscriptions
+            const outstandingSubscriptions = Math.max(0, totalExpectedSubscriptions - totalPaid);
+            
+            // Calculate fines (late fees)
+            const isLate = member.status === 'late';
+            const fines = isLate ? appState.lateFee : 0;
+            
+            // Loan status
+            const memberLoans = appState.loans.filter(l => l.memberId === member.id);
+            const activeLoans = memberLoans.filter(l => l.status === 'active');
+            const loanOutstanding = activeLoans.reduce((sum, loan) => sum + (loan.outstanding || 0), 0);
+            
+            // Special projects (placeholder - can be expanded)
+            const specialProjectsOutstanding = 0;
+            
+            // Total owed
+            const totalOwed = outstandingSubscriptions + fines + loanOutstanding + specialProjectsOutstanding;
+            
+            // Total shares value
+            const totalSharesValue = tierInfo.initialInvestment + member.balance;
+            
+            return {
+                tierAmount: tierInfo.initialInvestment,
+                weeklySubscription: tierInfo.weeklySubscription,
+                weeksJoined,
+                totalExpectedSubscriptions,
+                totalPaid,
+                outstandingSubscriptions,
+                fines,
+                loanCount: activeLoans.length,
+                loanOutstanding,
+                specialProjectsOutstanding,
+                totalOwed,
+                totalSharesValue
+            };
+        }
+        
+        function renderMembers() {
+            // Safety check - don't render if not logged in
+            if (!appState.currentUser) {
+                console.log('renderMembers called before login');
+                return;
+            }
+            
+            const grid = document.getElementById('memberGrid');
+            if (!grid) {
+                console.error('Member grid element not found');
+                return;
+            }
+            
+            const isListView = currentMemberView === 'list';
+            
             grid.innerHTML = appState.members.map(member => {
                 const tierInfo = appState.tiers[member.tier];
                 const roles = getMemberRoles(member.id);
                 const roleDisplay = roles[0] === 'member' ? 'Member' : roles.map(r => r.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())).join(', ');
+                const financials = calculateMemberFinancials(member);
                 
-                return `
-                <div class="member-card">
-                    <div class="member-header">
-                        <div class="member-avatar">${member.name.split(' ').map(n => n[0]).join('')}</div>
-                        <div class="member-info">
-                            <h3>${member.name}</h3>
-                            <div class="member-role">${roleDisplay}</div>
+                if (isListView) {
+                    // LIST VIEW - Horizontal layout with all details
+                    return `
+                    <div class="member-card">
+                        <!-- Avatar & Basic Info -->
+                        <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                            <div class="member-avatar" style="width: 60px; height: 60px; font-size: 20px;">${member.name.split(' ').map(n => n[0]).join('')}</div>
+                            <div style="text-align: center; font-size: 11px; color: var(--text-muted);">MSK-${String(member.id).padStart(4, '0')}</div>
+                        </div>
+                        
+                        <!-- Member Details Grid -->
+                        <div style="flex: 1; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                            <!-- Basic Info -->
+                            <div>
+                                <h3 style="margin: 0 0 5px 0; font-size: 18px;">${member.name}</h3>
+                                <div style="font-size: 12px; color: var(--gold); font-weight: 600; margin-bottom: 8px;">${roleDisplay}</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">
+                                    Joined: ${new Date(member.joined).toLocaleDateString('en-ZA', { year: 'numeric', month: 'short' })}
+                                </div>
+                            </div>
+                            
+                            <!-- Tier & Subscriptions -->
+                            <div style="padding: 10px; background: rgba(0, 180, 216, 0.1); border-radius: 6px; border-left: 3px solid var(--accent);">
+                                <div style="font-size: 11px; color: var(--accent); font-weight: 600; margin-bottom: 5px;">TIER ${member.tier} - ${member.shares} SHARE${member.shares > 1 ? 'S' : ''}</div>
+                                <div style="font-size: 13px; font-weight: 600;">Initial: R ${financials.tierAmount.toLocaleString()}</div>
+                                <div style="font-size: 12px; color: var(--text-muted); margin-top: 3px;">Weekly: R ${financials.weeklySubscription}</div>
+                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 3px;">${financials.weeksJoined} weeks paid</div>
+                            </div>
+                            
+                            <!-- Financials -->
+                            <div style="padding: 10px; background: rgba(0, 0, 0, 0.2); border-radius: 6px;">
+                                <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 5px;">BALANCE</div>
+                                <div style="font-size: 16px; font-weight: 600; color: var(--success);">R ${member.balance.toLocaleString()}</div>
+                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 5px;">Total Value: R ${financials.totalSharesValue.toLocaleString()}</div>
+                            </div>
+                            
+                            <!-- Loans -->
+                            <div style="padding: 10px; background: rgba(0, 0, 0, 0.2); border-radius: 6px;">
+                                <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 5px;">LOANS</div>
+                                ${financials.loanCount > 0 ? `
+                                    <div style="font-size: 14px; font-weight: 600; color: var(--gold);">${financials.loanCount} Active</div>
+                                    <div style="font-size: 12px; color: var(--danger); margin-top: 3px;">Owing: R ${financials.loanOutstanding.toLocaleString()}</div>
+                                ` : `
+                                    <div style="font-size: 13px; color: var(--success);">✓ No Loans</div>
+                                `}
+                            </div>
+                            
+                            <!-- Status & Outstanding -->
+                            <div style="padding: 10px; background: ${member.status === 'late' ? 'rgba(255, 71, 87, 0.1)' : 'rgba(0, 122, 77, 0.1)'}; border-radius: 6px; border-left: 3px solid ${member.status === 'late' ? 'var(--danger)' : 'var(--success)'};">
+                                <div style="font-size: 11px; color: ${member.status === 'late' ? 'var(--danger)' : 'var(--success)'}; font-weight: 600; margin-bottom: 5px;">
+                                    ${member.status === 'late' ? '⚠️ PAYMENT OVERDUE' : '✓ CURRENT'}
+                                </div>
+                                ${financials.outstandingSubscriptions > 0 ? `
+                                    <div style="font-size: 12px; color: var(--danger);">Outstanding: R ${financials.outstandingSubscriptions.toLocaleString()}</div>
+                                ` : ''}
+                                ${financials.fines > 0 ? `
+                                    <div style="font-size: 12px; color: var(--danger); margin-top: 3px;">Late Fee: R ${financials.fines}</div>
+                                ` : ''}
+                                ${financials.totalOwed > 0 ? `
+                                    <div style="font-size: 13px; font-weight: 600; color: var(--danger); margin-top: 5px; padding-top: 5px; border-top: 1px solid rgba(255, 71, 87, 0.3);">
+                                        Total Owed: R ${financials.totalOwed.toLocaleString()}
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                        
+                        <!-- Actions -->
+                        <div style="display: flex; flex-direction: column; gap: 8px; min-width: 120px;">
+                            <button onclick="viewMemberProfile(${member.id})" class="btn btn-primary" style="font-size: 12px; padding: 8px 12px;">
+                                <span>👁️ View Full</span>
+                            </button>
+                            <button onclick="contactMember(${JSON.stringify(member).replace(/"/g, '&quot;')})" class="btn btn-secondary" style="font-size: 12px; padding: 8px 12px; background: #25D366;">
+                                <span>💬 Chat</span>
+                            </button>
+                            ${member.status === 'late' ? `
+                            <button onclick="sendPaymentReminder(${JSON.stringify(member).replace(/"/g, '&quot;')})" class="btn btn-primary" style="font-size: 12px; padding: 8px 12px; background: var(--gold);">
+                                <span>🔔 Remind</span>
+                            </button>
+                            ` : ''}
                         </div>
                     </div>
-                    <div style="margin: 15px 0; padding: 12px; background: rgba(0, 180, 216, 0.1); border-radius: 8px; border-left: 3px solid ${member.status === 'late' ? 'var(--danger)' : 'var(--accent)'};">
-                        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 5px;">TIER ${member.tier} - ${member.shares} SHARE${member.shares > 1 ? 'S' : ''}</div>
-                        <div style="font-size: 14px; font-weight: 600;">R ${tierInfo.weeklySubscription}/week</div>
-                        <div style="font-size: 11px; color: ${member.status === 'late' ? 'var(--danger)' : 'var(--success)'}; margin-top: 5px;">
-                            ${member.status === 'late' ? '⚠️ PAYMENT OVERDUE' : '✓ Payment Current'}
+                `;
+                } else {
+                    // TILE VIEW - Compact cards
+                    return `
+                    <div class="member-card">
+                        <div class="member-header">
+                            <div class="member-avatar">${member.name.split(' ').map(n => n[0]).join('')}</div>
+                            <div class="member-info">
+                                <h3>${member.name}</h3>
+                                <div class="member-role">${roleDisplay}</div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin: 15px 0; padding: 12px; background: rgba(0, 180, 216, 0.1); border-radius: 8px; border-left: 3px solid ${member.status === 'late' ? 'var(--danger)' : 'var(--accent)'};">
+                            <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 5px;">TIER ${member.tier} - ${member.shares} SHARE${member.shares > 1 ? 'S' : ''}</div>
+                            <div style="font-size: 14px; font-weight: 600;">R ${financials.weeklySubscription}/week</div>
+                            <div style="font-size: 11px; color: ${member.status === 'late' ? 'var(--danger)' : 'var(--success)'}; margin-top: 5px;">
+                                ${member.status === 'late' ? '⚠️ PAYMENT OVERDUE' : '✓ Payment Current'}
+                            </div>
+                        </div>
+                        
+                        <div class="member-stats">
+                            <div class="member-stat">
+                                <div class="member-stat-label">Balance</div>
+                                <div class="member-stat-value">R ${member.balance.toLocaleString()}</div>
+                            </div>
+                            <div class="member-stat">
+                                <div class="member-stat-label">Loans</div>
+                                <div class="member-stat-value" style="color: ${financials.loanCount > 0 ? 'var(--gold)' : 'var(--success)'};">
+                                    ${financials.loanCount > 0 ? financials.loanCount + ' Active' : '✓ None'}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        ${financials.totalOwed > 0 ? `
+                        <div style="margin: 10px 0; padding: 10px; background: rgba(255, 71, 87, 0.1); border-radius: 6px; border-left: 3px solid var(--danger);">
+                            <div style="font-size: 11px; color: var(--danger); font-weight: 600;">TOTAL OWED</div>
+                            <div style="font-size: 16px; font-weight: 600; color: var(--danger);">R ${financials.totalOwed.toLocaleString()}</div>
+                            <div style="font-size: 10px; color: var(--text-muted); margin-top: 3px;">
+                                ${financials.outstandingSubscriptions > 0 ? `Subs: R${financials.outstandingSubscriptions} ` : ''}
+                                ${financials.fines > 0 ? `Fines: R${financials.fines} ` : ''}
+                                ${financials.loanOutstanding > 0 ? `Loans: R${financials.loanOutstanding}` : ''}
+                            </div>
+                        </div>
+                        ` : ''}
+                        
+                        <div style="display: flex; gap: 8px; margin-top: 12px;">
+                            <button onclick="viewMemberProfile(${member.id})" class="btn btn-primary" style="flex: 1; font-size: 12px; padding: 8px;">
+                                <span>👁️ View</span>
+                            </button>
+                            <button onclick="contactMember(${JSON.stringify(member).replace(/"/g, '&quot;')})" class="btn btn-secondary" style="flex: 1; font-size: 12px; padding: 8px; background: #25D366;">
+                                <span>💬</span>
+                            </button>
+                            ${member.status === 'late' ? `
+                            <button onclick="sendPaymentReminder(${JSON.stringify(member).replace(/"/g, '&quot;')})" class="btn btn-primary" style="flex: 1; font-size: 12px; padding: 8px; background: var(--gold);">
+                                <span>🔔</span>
+                            </button>
+                            ` : ''}
                         </div>
                     </div>
-                    <div class="member-stats">
-                        <div class="member-stat">
-                            <div class="member-stat-label">Balance</div>
-                            <div class="member-stat-value">R ${member.balance.toLocaleString()}</div>
-                        </div>
-                        <div class="member-stat">
-                            <div class="member-stat-label">Last Payment</div>
-                            <div class="member-stat-value">${new Date(member.lastPayment).toLocaleDateString('en-ZA', { month: 'short', day: 'numeric' })}</div>
+                `;
+                }
+            }).join('');
+            
+            // Show/hide Add Member button based on permissions
+            const addMemberBtn = document.getElementById('addMemberBtn');
+            if (addMemberBtn && appState.currentUser && hasPermission(appState.currentUser.id, 'approve_members')) {
+                addMemberBtn.style.display = 'block';
+            }
+        }
+        
+        function viewMemberProfile(memberId) {
+            const member = appState.members.find(m => m.id === memberId);
+            if (!member) return;
+            
+            const financials = calculateMemberFinancials(member);
+            const roles = getMemberRoles(member.id);
+            const roleDisplay = roles[0] === 'member' ? 'Member' : roles.map(r => r.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())).join(', ');
+            
+            const modalContent = `
+                <h2 style="color: var(--accent); margin-bottom: 20px; text-align: center;">📋 Member Profile</h2>
+                
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <div class="member-avatar" style="width: 100px; height: 100px; font-size: 36px; margin: 0 auto 15px;">
+                        ${member.name.split(' ').map(n => n[0]).join('')}
+                    </div>
+                    <h3 style="margin: 0 0 5px 0;">${member.name}</h3>
+                    <div style="color: var(--gold); font-weight: 600; margin-bottom: 5px;">${roleDisplay}</div>
+                    <div style="font-size: 13px; color: var(--text-muted);">MSK-${String(member.id).padStart(4, '0')}</div>
+                </div>
+                
+                <div style="display: grid; gap: 20px;">
+                    <!-- Membership Info -->
+                    <div class="card" style="background: rgba(0, 180, 216, 0.1);">
+                        <h4 style="color: var(--accent); margin-bottom: 15px;">💎 Membership Details</h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div>
+                                <div style="font-size: 11px; color: var(--text-muted);">TIER</div>
+                                <div style="font-size: 18px; font-weight: 600;">Tier ${member.tier} - ${member.shares} Shares</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 11px; color: var(--text-muted);">JOINED</div>
+                                <div style="font-size: 14px; font-weight: 600;">${new Date(member.joined).toLocaleDateString('en-ZA')}</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 11px; color: var(--text-muted);">INITIAL INVESTMENT</div>
+                                <div style="font-size: 18px; font-weight: 600; color: var(--success);">R ${financials.tierAmount.toLocaleString()}</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 11px; color: var(--text-muted);">WEEKLY SUBSCRIPTION</div>
+                                <div style="font-size: 18px; font-weight: 600;">R ${financials.weeklySubscription}</div>
+                            </div>
                         </div>
                     </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px;">
-                        <button onclick="contactMember(${JSON.stringify(member).replace(/"/g, '&quot;')})" class="btn btn-secondary" style="font-size: 13px; padding: 8px 12px; display: flex; align-items: center; justify-content: center; gap: 5px;">
-                            <span style="font-size: 16px;">💬</span>
-                            <span>WhatsApp</span>
+                    
+                    <!-- Financial Summary -->
+                    <div class="card">
+                        <h4 style="color: var(--gold); margin-bottom: 15px;">💰 Financial Summary</h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div style="padding: 12px; background: rgba(0, 122, 77, 0.1); border-radius: 6px;">
+                                <div style="font-size: 11px; color: var(--success);">CURRENT BALANCE</div>
+                                <div style="font-size: 20px; font-weight: 600; color: var(--success);">R ${member.balance.toLocaleString()}</div>
+                            </div>
+                            <div style="padding: 12px; background: rgba(0, 180, 216, 0.1); border-radius: 6px;">
+                                <div style="font-size: 11px; color: var(--accent);">TOTAL SHARES VALUE</div>
+                                <div style="font-size: 20px; font-weight: 600; color: var(--accent);">R ${financials.totalSharesValue.toLocaleString()}</div>
+                            </div>
+                            <div style="padding: 12px; background: rgba(0, 0, 0, 0.2); border-radius: 6px;">
+                                <div style="font-size: 11px; color: var(--text-muted);">WEEKS CONTRIBUTED</div>
+                                <div style="font-size: 20px; font-weight: 600;">${financials.weeksJoined}</div>
+                            </div>
+                            <div style="padding: 12px; background: rgba(0, 0, 0, 0.2); border-radius: 6px;">
+                                <div style="font-size: 11px; color: var(--text-muted);">TOTAL PAID</div>
+                                <div style="font-size: 20px; font-weight: 600;">R ${financials.totalPaid.toLocaleString()}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Loan Status -->
+                    <div class="card">
+                        <h4 style="color: ${financials.loanCount > 0 ? 'var(--gold)' : 'var(--success)'}; margin-bottom: 15px;">
+                            🏦 Loan Status
+                        </h4>
+                        ${financials.loanCount > 0 ? `
+                            <div style="padding: 12px; background: rgba(230, 126, 34, 0.1); border-radius: 6px; border-left: 3px solid var(--gold);">
+                                <div style="font-size: 14px; font-weight: 600; color: var(--gold); margin-bottom: 8px;">
+                                    ${financials.loanCount} Active Loan${financials.loanCount > 1 ? 's' : ''}
+                                </div>
+                                <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 5px;">OUTSTANDING BALANCE</div>
+                                <div style="font-size: 24px; font-weight: 600; color: var(--danger);">R ${financials.loanOutstanding.toLocaleString()}</div>
+                            </div>
+                        ` : `
+                            <div style="text-align: center; padding: 30px; color: var(--success);">
+                                <span style="font-size: 48px;">✅</span>
+                                <p style="margin-top: 10px; font-weight: 600;">No Active Loans</p>
+                            </div>
+                        `}
+                    </div>
+                    
+                    <!-- Outstanding Amounts -->
+                    ${financials.totalOwed > 0 ? `
+                    <div class="card" style="background: rgba(255, 71, 87, 0.1); border: 2px solid var(--danger);">
+                        <h4 style="color: var(--danger); margin-bottom: 15px;">⚠️ Outstanding Amounts</h4>
+                        <div style="display: grid; gap: 10px;">
+                            ${financials.outstandingSubscriptions > 0 ? `
+                            <div style="display: flex; justify-content: space-between; padding: 10px; background: rgba(0, 0, 0, 0.3); border-radius: 6px;">
+                                <span style="font-weight: 600;">Subscription Arrears:</span>
+                                <span style="color: var(--danger); font-weight: 600;">R ${financials.outstandingSubscriptions.toLocaleString()}</span>
+                            </div>
+                            ` : ''}
+                            ${financials.fines > 0 ? `
+                            <div style="display: flex; justify-content: space-between; padding: 10px; background: rgba(0, 0, 0, 0.3); border-radius: 6px;">
+                                <span style="font-weight: 600;">Late Fees:</span>
+                                <span style="color: var(--danger); font-weight: 600;">R ${financials.fines}</span>
+                            </div>
+                            ` : ''}
+                            ${financials.loanOutstanding > 0 ? `
+                            <div style="display: flex; justify-content: space-between; padding: 10px; background: rgba(0, 0, 0, 0.3); border-radius: 6px;">
+                                <span style="font-weight: 600;">Loan Balance:</span>
+                                <span style="color: var(--danger); font-weight: 600;">R ${financials.loanOutstanding.toLocaleString()}</span>
+                            </div>
+                            ` : ''}
+                            <div style="display: flex; justify-content: space-between; padding: 15px; background: var(--danger); border-radius: 6px; margin-top: 10px;">
+                                <span style="font-weight: 700; font-size: 16px;">TOTAL OWED:</span>
+                                <span style="font-weight: 700; font-size: 20px;">R ${financials.totalOwed.toLocaleString()}</span>
+                            </div>
+                        </div>
+                    </div>
+                    ` : `
+                    <div class="card" style="background: rgba(0, 122, 77, 0.1); border: 2px solid var(--success);">
+                        <div style="text-align: center; padding: 30px;">
+                            <span style="font-size: 48px;">✅</span>
+                            <h4 style="color: var(--success); margin-top: 15px;">All Payments Current</h4>
+                            <p style="color: var(--text-muted); margin-top: 5px;">No outstanding amounts</p>
+                        </div>
+                    </div>
+                    `}
+                    
+                    <!-- Contact -->
+                    <div style="display: flex; gap: 10px;">
+                        <button onclick="contactMember(${JSON.stringify(member).replace(/"/g, '&quot;')}); closeModal('memberProfileModal');" class="btn btn-primary" style="flex: 1; background: #25D366;">
+                            <span>💬 Send WhatsApp Message</span>
                         </button>
                         ${member.status === 'late' ? `
-                        <button onclick="sendPaymentReminder(${JSON.stringify(member).replace(/"/g, '&quot;')})" class="btn btn-primary" style="font-size: 13px; padding: 8px 12px; background: var(--gold); display: flex; align-items: center; justify-content: center; gap: 5px;">
-                            <span>🔔</span>
-                            <span>Remind</span>
+                        <button onclick="sendPaymentReminder(${JSON.stringify(member).replace(/"/g, '&quot;')}); closeModal('memberProfileModal');" class="btn btn-primary" style="flex: 1; background: var(--gold);">
+                            <span>🔔 Send Payment Reminder</span>
                         </button>
-                        ` : `
-                        <button disabled class="btn btn-secondary" style="font-size: 13px; padding: 8px 12px; opacity: 0.5; cursor: not-allowed;">
-                            <span>✓ Current</span>
-                        </button>
-                        `}
+                        ` : ''}
                     </div>
                 </div>
             `;
-            }).join('');
+            
+            // Create and show modal
+            const modal = document.createElement('div');
+            modal.className = 'modal active';
+            modal.id = 'memberProfileModal';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 800px;">
+                    <div class="modal-header">
+                        <div class="modal-title">Member Profile</div>
+                        <button class="close-modal" onclick="closeModal('memberProfileModal')">×</button>
+                    </div>
+                    <div>${modalContent}</div>
+                </div>
+            `;
+            document.body.appendChild(modal);
         }
+        
         
         // Render Contributions
         function renderContributions() {
+            // Safety check - don't render if not logged in
+            if (!appState.currentUser) {
+                return;
+            }
+            
             const table = document.getElementById('contributionsTable');
+            if (!table) {
+                return;
+            }
+            
             const today = new Date();
             const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday
             const daysUntilMonday = dayOfWeek === 0 ? 1 : dayOfWeek === 1 ? 0 : 8 - dayOfWeek;
@@ -4917,7 +5803,16 @@
         
         // Render Loans
         function renderLoans() {
+            // Safety check - don't render if not logged in
+            if (!appState.currentUser) {
+                return;
+            }
+            
             const table = document.getElementById('loansTable');
+            if (!table) {
+                return;
+            }
+            
             table.innerHTML = appState.loans.map(loan => {
                 const member = appState.members.find(m => m.id === loan.memberId);
                 const paymentStatus = loan.paymentStatus || 'pending-approval';
@@ -6199,7 +7094,52 @@
         function sendWhatsAppMessage(phone, message) {
             const formattedPhone = formatPhoneForWhatsApp(phone);
             const encodedMessage = encodeURIComponent(message);
-            window.open(`https://wa.me/${formattedPhone}?text=${encodedMessage}`, '_blank');
+            
+            // Development mode - just log
+            if (WHATSAPP_CONFIG.LOG_ONLY) {
+                console.log('📱 WhatsApp Message (LOG MODE)');
+                console.log('To:', phone, '(' + formattedPhone + ')');
+                console.log('Message:', message);
+                return;
+            }
+            
+            // Development mode - show in alert instead of opening WhatsApp
+            if (WHATSAPP_CONFIG.DEVELOPMENT_MODE) {
+                alert('📱 WhatsApp Message Ready\n\nTo: ' + phone + '\n\n' + message + '\n\n(Development mode - WhatsApp not opened)');
+                return;
+            }
+            
+            // Confirm before send (optional)
+            if (WHATSAPP_CONFIG.CONFIRM_BEFORE_SEND) {
+                if (!confirm('Send WhatsApp notification to ' + phone + '?')) {
+                    return;
+                }
+            }
+            
+            // Production mode - open WhatsApp
+            const whatsappUrl = `https://wa.me/${formattedPhone}?text=${encodedMessage}`;
+            
+            // Detect device type
+            const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+            
+            if (isMobile) {
+                // Mobile - try to open WhatsApp app directly
+                window.location.href = `whatsapp://send?phone=${formattedPhone}&text=${encodedMessage}`;
+                
+                // Fallback to web after 1 second if app doesn't open
+                setTimeout(() => {
+                    window.open(whatsappUrl, '_blank');
+                }, 1000);
+            } else {
+                // Desktop - open WhatsApp Web in new tab
+                window.open(whatsappUrl, '_blank');
+            }
+        }
+        
+        // Improved version that sends to specific phone number
+        function sendWhatsAppNotificationDirect(phone, message) {
+            // This is an alias for the main function
+            sendWhatsAppMessage(phone, message);
         }
         
         function shareToWhatsApp(message) {
@@ -6424,11 +7364,12 @@ _Please log in to the platform to take action._
         function showNotification(message, type) {
             // Simple in-app notification toast
             const toast = document.createElement('div');
+            const bgColor = type === 'success' ? 'var(--success)' : type === 'error' ? 'var(--danger)' : 'var(--accent)';
             toast.style.cssText = `
                 position: fixed;
                 top: 80px;
                 right: 20px;
-                background: ${type === 'success' ? 'var(--success)' : type === 'error' ? 'var(--danger)' : 'var(--accent)'};
+                background: ${bgColor};
                 color: white;
                 padding: 15px 25px;
                 border-radius: 8px;
@@ -6513,8 +7454,8 @@ Email: security@masonko.com
                 `.trim();
                 
                 // Simulate email send (in production, would call email API)
-                console.log(`Email sent to ${user.email}:`, message);
-                alert(`📧 Verification code sent to ${user.email}\n\n(In development mode, code is: ${code})`);
+                console.log('Email sent to ' + user.email + ':', message);
+                alert('📧 Verification code sent to ' + user.email + '\n\n(In development mode, code is: ' + code + ')');
                 return 'email';
             }
             
@@ -6615,7 +7556,7 @@ Email: security@masonko.com
                 appState.isLoggedIn = true;
                 
                 // Save to localStorage
-                localStorage.setItem('masонkoUser', JSON.stringify(user));
+                localStorage.setItem('masonkoUser', JSON.stringify(user));
                 
                 // Close modals
                 closeModal('twoFAModal');
@@ -6685,9 +7626,6 @@ _This is an automated security notification._
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('data:text/javascript;base64,');
         }
-        
-        // Initialize app
-        renderMembers();
         
         // Chat input enter key
         document.getElementById('chatInput').addEventListener('keypress', (e) => {
