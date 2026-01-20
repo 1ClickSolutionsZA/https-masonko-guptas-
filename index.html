@@ -1015,6 +1015,11 @@
             padding: 12px 18px;
             border-radius: 18px;
             animation: messageSlide 0.3s ease-out;
+            /* Word wrapping for long messages */
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            word-break: break-word;
+            white-space: pre-wrap; /* Preserve line breaks */
         }
         
         @keyframes messageSlide {
@@ -1061,10 +1066,39 @@
             padding: 15px;
             background: rgba(0, 0, 0, 0.3);
             border-top: 1px solid var(--border);
+            align-items: flex-end; /* Align button to bottom when textarea grows */
         }
         
         .chat-input {
             flex: 1;
+            min-height: 42px; /* Minimum height for 1 line */
+            max-height: 150px; /* Maximum height before scrolling */
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 14px;
+            line-height: 1.5;
+            resize: none; /* Disable manual resize */
+            overflow-y: auto; /* Scroll when max-height reached */
+            overflow-x: hidden; /* No horizontal scroll */
+            /* Word wrapping */
+            white-space: pre-wrap; /* Preserve line breaks and wrap */
+            word-wrap: break-word; /* Break long words */
+            overflow-wrap: break-word; /* Modern browsers */
+            word-break: break-word; /* Extra safety for long strings */
+        }
+        
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.08);
+        }
+        
+        .chat-input::placeholder {
+            color: var(--text-muted);
         }
         
         /* Notifications */
@@ -1660,6 +1694,21 @@
             
             nav {
                 width: 260px;
+            }
+            
+            /* Chat input mobile adjustments */
+            .chat-input {
+                font-size: 14px; /* Prevent iOS zoom */
+                min-height: 38px;
+            }
+            
+            .chat-input-area {
+                padding: 10px;
+            }
+            
+            .chat-message {
+                max-width: 85%; /* More space for messages on mobile */
+                font-size: 14px;
             }
         }
         
@@ -2415,7 +2464,7 @@
                         <!-- Messages will be populated here -->
                     </div>
                     <div class="chat-input-area">
-                        <input type="text" class="chat-input" id="chatInput" placeholder="Type your message...">
+                        <textarea class="chat-input" id="chatInput" placeholder="Type your message..." rows="1"></textarea>
                         <button class="btn btn-primary" onclick="sendMessage()"><span>Send</span></button>
                     </div>
                 </div>
@@ -7046,6 +7095,9 @@
                 });
                 renderChat();
                 input.value = '';
+                // Reset textarea height after sending
+                input.style.height = 'auto';
+                autoResizeChatInput();
             }
         }
         
@@ -7746,11 +7798,36 @@ _This is an automated security notification._
         }
         
         // Chat input enter key
-        document.getElementById('chatInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
+        // Auto-resize chat textarea
+        function autoResizeChatInput() {
+            const textarea = document.getElementById('chatInput');
+            if (!textarea) return;
+            
+            // Reset height to get accurate scrollHeight
+            textarea.style.height = 'auto';
+            
+            // Set height based on content, respecting min and max
+            const newHeight = Math.min(Math.max(textarea.scrollHeight, 42), 150);
+            textarea.style.height = newHeight + 'px';
+        }
+        
+        // Chat input event listeners
+        const chatInput = document.getElementById('chatInput');
+        
+        // Auto-resize on input
+        chatInput.addEventListener('input', autoResizeChatInput);
+        
+        // Handle Enter key (send message, Shift+Enter for new line)
+        chatInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault(); // Prevent new line
                 sendMessage();
             }
+            // If Shift+Enter, allow default behavior (new line)
         });
+        
+        // Initial resize
+        autoResizeChatInput();
         
         // Close modals on outside click
         document.querySelectorAll('.modal').forEach(modal => {
