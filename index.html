@@ -456,10 +456,14 @@
             z-index: 999;
             opacity: 0;
             transition: opacity 0.3s ease;
+            pointer-events: none;
+            visibility: hidden;
         }
         
         .nav-overlay.active {
             opacity: 1;
+            pointer-events: auto;
+            visibility: visible;
         }
         
         /* Mobile Responsive */
@@ -469,7 +473,12 @@
             }
             
             .nav-overlay {
-                display: block;
+                /* On mobile, overlay can be displayed but remains hidden */
+                visibility: hidden;
+            }
+            
+            .nav-overlay.active {
+                visibility: visible;
             }
             
             /* Hide user info on very small screens */
@@ -682,6 +691,8 @@
         
         .view {
             display: none;
+            position: relative;
+            z-index: 1;
         }
         
         .view.active {
@@ -1788,15 +1799,23 @@
             
             <!-- Registration Form -->
             <form class="auth-form" id="registerForm" onsubmit="handleRegister(event)">
-                <!-- Auto-Approval Notice -->
-                <div style="padding: 15px; background: linear-gradient(135deg, rgba(0, 180, 216, 0.15), rgba(0, 122, 77, 0.15)); border-radius: 12px; border-left: 4px solid var(--success); margin-bottom: 20px;">
+                <!-- Registration Code Notice -->
+                <div style="padding: 15px; background: linear-gradient(135deg, rgba(230, 126, 34, 0.15), rgba(255, 193, 7, 0.15)); border-radius: 12px; border-left: 4px solid var(--gold); margin-bottom: 20px;">
                     <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
-                        <span style="font-size: 24px;">⚡</span>
-                        <strong style="color: var(--success); font-size: 16px;">Instant Approval Active</strong>
+                        <span style="font-size: 24px;">🔐</span>
+                        <strong style="color: var(--gold); font-size: 16px;">Secure Registration</strong>
                     </div>
                     <p style="font-size: 13px; color: var(--text-muted); margin: 0; line-height: 1.5;">
-                        Your account will be <strong style="color: var(--success);">automatically approved</strong> upon registration. You can login immediately after signing up!
+                        You need a <strong style="color: var(--gold);">registration code</strong> from the Admin to join. After registration, your account will be reviewed and approved by leadership.
                     </p>
+                </div>
+                
+                <div class="form-group">
+                    <label>Registration Code *</label>
+                    <input type="text" id="regCode" required placeholder="Enter code from Admin" style="font-family: monospace; letter-spacing: 2px; text-transform: uppercase;">
+                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 5px;">
+                        💡 Contact the Admin or Treasurer to get your registration code
+                    </div>
                 </div>
                 
                 <div class="form-group">
@@ -4097,6 +4116,11 @@
             currentUser: null, // Will be set on login
             isLoggedIn: false,
             twoFASession: null, // Stores pending 2FA verification data
+            registrationCodes: [
+                'MSK2026',      // General code
+                'GUPTAS01',     // Specific code
+                'STOKVEL2026'   // Alternative code
+            ],
             users: [
                 // Pre-seeded accounts - all members without permanent roles
                 { id: 1, name: 'Admin User', email: 'admin@masonko.com', phone: '+27767696654', password: 'admin123', tier: 3, shares: 3, balance: 14400, joined: '2024-01-15', lastPayment: '2026-01-13', status: 'current', approved: true },
@@ -4181,10 +4205,25 @@
                 'load_payments': ['payment-loader', 'treasurer', 'chairperson'],
                 'release_payments': ['payment-releaser', 'treasurer', 'chairperson'],
                 'create_minutes': ['secretary', 'chairperson'],
-                'view_reports': ['chairperson', 'treasurer', 'secretary', 'loan-officer', 'vice-chair', 'payment-loader', 'payment-releaser']
+                'view_reports': ['chairperson', 'treasurer', 'secretary', 'loan-officer', 'vice-chair', 'payment-loader', 'payment-releaser'],
+                'view_sensitive_info': ['chairperson', 'treasurer', 'secretary']  // Can see emails/phones
             };
             
             return permissions[permission]?.some(role => roles.includes(role)) || false;
+        }
+        
+        // Helper function to mask sensitive data
+        function maskEmail(email) {
+            if (!email) return 'Hidden';
+            const [local, domain] = email.split('@');
+            return local.substring(0, 2) + '***@' + domain;
+        }
+        
+        function maskPhone(phone) {
+            if (!phone) return 'Hidden';
+            const cleaned = phone.replace(/\D/g, '');
+            if (cleaned.length < 4) return '***';
+            return '***' + cleaned.slice(-4);
         }
         
         // Payment Proof Upload Functions
@@ -4541,6 +4580,13 @@
         function handleRegister(e) {
             e.preventDefault();
             
+            // Validate registration code
+            const registrationCode = document.getElementById('regCode').value.trim().toUpperCase();
+            if (!appState.registrationCodes.includes(registrationCode)) {
+                alert('❌ Invalid Registration Code\n\nThe code you entered is not valid. Please contact the Admin or Treasurer to get a valid registration code.\n\n💡 Valid codes are provided to approved members only.');
+                return;
+            }
+            
             const password = document.getElementById('regPassword').value;
             const confirmPassword = document.getElementById('regConfirmPassword').value;
             
@@ -4567,12 +4613,8 @@
             const tier = parseInt(document.getElementById('regTier').value);
             const tierData = appState.tiers[tier];
             
-            // Generate next member ID
-            const nextId = Math.max(...appState.users.map(u => u.id), ...appState.members.map(m => m.id)) + 1;
-            
-            // Create new member - AUTO APPROVED (TEMPORARY)
+            // Create new pending member - REQUIRES MANUAL APPROVAL
             const newMember = {
-                id: nextId,
                 name: document.getElementById('regName').value.trim(),
                 email: email,
                 phone: phone,
@@ -4583,29 +4625,19 @@
                 balance: 0,
                 joined: new Date().toISOString().split('T')[0],
                 lastPayment: null,
-                status: 'current',
-                approved: true  // ✅ AUTO-APPROVED TEMPORARILY
+                status: 'pending',
+                approved: false,  // ✅ MANUAL APPROVAL REQUIRED
+                registrationCode: registrationCode
             };
             
             // Save to database
             saveToDB('users', newMember).then(savedUser => {
-                // Add to app state (both users and members arrays)
+                // Add to pending members only
+                appState.pendingMembers.push(savedUser);
                 appState.users.push(savedUser);
-                appState.members.push({
-                    id: savedUser.id,
-                    name: savedUser.name,
-                    email: savedUser.email,
-                    phone: savedUser.phone,
-                    tier: savedUser.tier,
-                    shares: savedUser.shares,
-                    balance: savedUser.balance,
-                    joined: savedUser.joined,
-                    lastPayment: savedUser.lastPayment,
-                    status: savedUser.status
-                });
                 
                 // Show success message
-                alert(`✅ Registration successful!\n\n🎉 Your account has been automatically approved!\n\nYou can now login with:\nEmail: ${email}\nPassword: (your password)\n\n💰 Membership Details:\nTier: ${tier}\nInitial Investment: R ${tierData.initialInvestment.toLocaleString()}\nWeekly Subscription: R ${tierData.weeklySubscription}\n\nWelcome to Masonko Stokvel!`);
+                alert('✅ Registration Submitted Successfully!\n\n📋 Your application has been sent to the Admin/Treasurer for review.\n\n⏳ What happens next:\n• Leadership will review your application\n• You\'ll receive notification once approved\n• You can then login with your credentials\n\n💰 Membership Details:\nTier: ' + tier + '\nInitial Investment: R ' + tierData.initialInvestment.toLocaleString() + '\nWeekly Subscription: R ' + tierData.weeklySubscription + '\n\nThank you for your patience!');
                 
                 // Reset form and switch to login
                 e.target.reset();
@@ -4646,15 +4678,31 @@
             const hamburger = document.getElementById('hamburgerBtn');
             const overlay = document.getElementById('navOverlay');
             
+            const isOpening = !nav.classList.contains('active');
+            
             nav.classList.toggle('active');
             hamburger.classList.toggle('active');
             overlay.classList.toggle('active');
             
             // Prevent body scroll when menu is open
-            if (nav.classList.contains('active')) {
+            if (isOpening) {
                 document.body.style.overflow = 'hidden';
+                overlay.style.display = 'block';
+                overlay.style.pointerEvents = 'auto';
+                // Force overlay to be visible and on top
+                requestAnimationFrame(() => {
+                    overlay.style.opacity = '1';
+                });
             } else {
                 document.body.style.overflow = '';
+                overlay.style.opacity = '0';
+                overlay.style.pointerEvents = 'none';
+                // Hide overlay after transition
+                setTimeout(() => {
+                    if (!overlay.classList.contains('active')) {
+                        overlay.style.display = 'none';
+                    }
+                }, 300);
             }
         }
         
@@ -4663,22 +4711,56 @@
             const hamburger = document.getElementById('hamburgerBtn');
             const overlay = document.getElementById('navOverlay');
             
+            // Remove active classes
             nav.classList.remove('active');
             hamburger.classList.remove('active');
             overlay.classList.remove('active');
+            
+            // Restore body scroll
             document.body.style.overflow = '';
+            
+            // Hide and disable overlay
+            overlay.style.opacity = '0';
+            overlay.style.pointerEvents = 'none';
+            setTimeout(() => {
+                overlay.style.display = 'none';
+            }, 300);
         }
         
         // Close mobile menu when a nav button is clicked
         document.addEventListener('DOMContentLoaded', function() {
             const navButtons = document.querySelectorAll('.nav-btn');
             navButtons.forEach(btn => {
-                btn.addEventListener('click', function() {
+                btn.addEventListener('click', function(e) {
                     if (window.innerWidth <= 768) {
-                        toggleMobileMenu();
+                        // Use closeMobileMenu instead of toggle to ensure it closes
+                        closeMobileMenu();
                     }
                 });
             });
+            
+            // Prevent clicks inside main app from triggering menu when menu is closed
+            const mainApp = document.getElementById('mainApp');
+            if (mainApp) {
+                mainApp.addEventListener('click', function(e) {
+                    const overlay = document.getElementById('navOverlay');
+                    const nav = document.getElementById('mainNav');
+                    
+                    // If menu is open and click is outside nav, close it
+                    if (nav && nav.classList.contains('active')) {
+                        if (!nav.contains(e.target) && !e.target.classList.contains('hamburger-btn')) {
+                            // Don't close if clicking inside nav
+                            return;
+                        }
+                    }
+                    
+                    // Make sure overlay doesn't interfere with page buttons
+                    if (overlay && !overlay.classList.contains('active')) {
+                        overlay.style.pointerEvents = 'none';
+                        overlay.style.display = 'none';
+                    }
+                }, true); // Use capture phase
+            }
         });
         
         // Profile Picture Handling
