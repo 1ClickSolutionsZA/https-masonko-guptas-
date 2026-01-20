@@ -4179,38 +4179,19 @@
         
         // Helper function to check if member has specific permission
         function hasPermission(memberId, permission) {
-            // Admin User (ID: 1) always has all permissions
-            if (memberId === 1) return true;
-            
-            const roles = getMemberRoles(memberId);
-            
-            const permissions = {
-                'approve_members': ['chairperson', 'treasurer'],
-                'record_payments': ['treasurer', 'chairperson'],
-                'approve_payments': ['treasurer', 'chairperson'],
-                'approve_loans': ['loan-officer', 'chairperson'],
-                'load_payments': ['payment-loader', 'treasurer', 'chairperson'],
-                'release_payments': ['payment-releaser', 'treasurer', 'chairperson'],
-                'create_minutes': ['secretary', 'chairperson'],
-                'view_reports': ['chairperson', 'treasurer', 'secretary', 'loan-officer', 'vice-chair', 'payment-loader', 'payment-releaser'],
-                'view_sensitive_info': ['chairperson', 'treasurer', 'secretary']  // Can see emails/phones
-            };
-            
-            return permissions[permission]?.some(role => roles.includes(role)) || false;
+            // 🧪 TESTING MODE: All users have all permissions
+            return true;
         }
         
-        // Helper function to mask sensitive data
+        // Helper function to mask sensitive data (DISABLED IN TESTING MODE)
         function maskEmail(email) {
-            if (!email) return 'Hidden';
-            const [local, domain] = email.split('@');
-            return local.substring(0, 2) + '***@' + domain;
+            // Testing mode - show full emails
+            return email || 'No email';
         }
         
         function maskPhone(phone) {
-            if (!phone) return 'Hidden';
-            const cleaned = phone.replace(/\D/g, '');
-            if (cleaned.length < 4) return '***';
-            return '***' + cleaned.slice(-4);
+            // Testing mode - show full phone numbers
+            return phone || 'No phone';
         }
         
         // Payment Proof Upload Functions
