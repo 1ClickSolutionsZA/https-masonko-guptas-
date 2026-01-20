@@ -1827,114 +1827,52 @@
             
             <!-- Login Form -->
             <form class="auth-form active" id="loginForm" onsubmit="handleLogin(event)">
-                <div class="form-group">
-                    <label>Email or Phone Number</label>
-                    <input type="text" id="loginIdentifier" required placeholder="Enter your email or phone">
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <div class="password-wrapper">
-                        <input type="password" id="loginPassword" required placeholder="Enter your password">
-                        <span class="password-toggle" onclick="togglePassword('loginPassword', this)">👁️</span>
+                <!-- Testing Mode Notice -->
+                <div style="padding: 15px; background: linear-gradient(135deg, rgba(0, 180, 216, 0.15), rgba(0, 122, 77, 0.15)); border-radius: 12px; border-left: 4px solid var(--success); margin-bottom: 20px;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                        <span style="font-size: 24px;">🧪</span>
+                        <strong style="color: var(--success); font-size: 16px;">Testing Mode</strong>
                     </div>
+                    <p style="font-size: 13px; color: var(--text-muted); margin: 0; line-height: 1.5;">
+                        Just enter your <strong style="color: var(--success);">name</strong> to login. No password needed. New users are created automatically!
+                    </p>
+                </div>
+                
+                <div class="form-group">
+                    <label>Your Name</label>
+                    <input type="text" id="loginIdentifier" required placeholder="Enter your name (e.g., John Doe)" autofocus>
                 </div>
                 <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
-                    <span>Login</span>
+                    <span>Login / Create Account</span>
                 </button>
-                <div class="auth-link">
-                    <a onclick="showForgotPassword()">Forgot password?</a>
+                <div style="text-align: center; margin-top: 15px; font-size: 12px; color: var(--text-muted);">
+                    💡 First time? Just type your name and you'll be automatically registered!
                 </div>
             </form>
             
             <!-- Registration Form -->
             <form class="auth-form" id="registerForm" onsubmit="handleRegister(event)">
-                <!-- Registration Code Notice -->
-                <div style="padding: 15px; background: linear-gradient(135deg, rgba(230, 126, 34, 0.15), rgba(255, 193, 7, 0.15)); border-radius: 12px; border-left: 4px solid var(--gold); margin-bottom: 20px;">
+                <div style="padding: 15px; background: linear-gradient(135deg, rgba(0, 180, 216, 0.15), rgba(0, 122, 77, 0.15)); border-radius: 12px; border-left: 4px solid var(--success); margin-bottom: 20px;">
                     <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
-                        <span style="font-size: 24px;">🔐</span>
-                        <strong style="color: var(--gold); font-size: 16px;">Secure Registration</strong>
+                        <span style="font-size: 24px;">🧪</span>
+                        <strong style="color: var(--success); font-size: 16px;">Quick Registration</strong>
                     </div>
                     <p style="font-size: 13px; color: var(--text-muted); margin: 0; line-height: 1.5;">
-                        You need a <strong style="color: var(--gold);">registration code</strong> from the Admin to join. After registration, your account will be reviewed and approved by leadership.
+                        Testing mode - Just enter your name to create an account instantly!
                     </p>
                 </div>
                 
                 <div class="form-group">
-                    <label>Registration Code *</label>
-                    <input type="text" id="regCode" required placeholder="Enter code from Admin" style="font-family: monospace; letter-spacing: 2px; text-transform: uppercase;">
-                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 5px;">
-                        💡 Contact the Admin or Treasurer to get your registration code
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label>Full Name</label>
+                    <label>Your Name</label>
                     <input type="text" id="regName" required placeholder="Enter your full name">
                 </div>
-                <div class="form-group">
-                    <label>Email Address</label>
-                    <input type="email" id="regEmail" required placeholder="Enter your email">
-                </div>
-                <div class="form-group">
-                    <label>Phone Number</label>
-                    <input type="tel" id="regPhone" required placeholder="08X XXX XXXX">
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <div class="password-wrapper">
-                        <input type="password" id="regPassword" required placeholder="Create a strong password" minlength="8" oninput="checkPasswordStrength(this.value)">
-                        <span class="password-toggle" onclick="togglePassword('regPassword', this)">👁️</span>
-                    </div>
-                    <div class="password-requirements">
-                        <div style="font-weight: 600; margin-bottom: 8px; color: var(--accent);">Password must contain:</div>
-                        <div class="requirement" id="req-length">At least 8 characters</div>
-                        <div class="requirement" id="req-uppercase">At least one uppercase letter (A-Z)</div>
-                        <div class="requirement" id="req-lowercase">At least one lowercase letter (a-z)</div>
-                        <div class="requirement" id="req-number">At least one number (0-9)</div>
-                        <div class="requirement" id="req-symbol">At least one symbol (!@#$%^&*)</div>
-                        <div class="password-strength">
-                            <div class="password-strength-bar" id="strength-bar"></div>
-                        </div>
-                        <div style="margin-top: 8px; font-size: 11px; text-align: center;">
-                            <span id="strength-text" style="font-weight: 600;"></span>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Confirm Password</label>
-                    <div class="password-wrapper">
-                        <input type="password" id="regConfirmPassword" required placeholder="Confirm your password" oninput="checkPasswordMatch()">
-                        <span class="password-toggle" onclick="togglePassword('regConfirmPassword', this)">👁️</span>
-                    </div>
-                    <div id="password-match-message" style="margin-top: 5px; font-size: 13px;"></div>
-                </div>
-                <div class="form-group">
-                    <label>Membership Tier</label>
-                    <select id="regTier" required onchange="updateRegTierInfo()">
-                        <option value="">Select Your Tier</option>
-                        <option value="1">Tier 1 - R1,000 (1 Share) - R100/week</option>
-                        <option value="2">Tier 2 - R2,000 (2 Shares) - R200/week</option>
-                        <option value="3">Tier 3 - R3,000 (3 Shares) - R300/week</option>
-                        <option value="4">Tier 4 - R4,000 (4 Shares) - R400/week</option>
-                        <option value="5">Tier 5 - R5,000 (5 Shares) - R500/week</option>
-                    </select>
-                    <div id="regTierInfo" style="margin-top: 10px; padding: 10px; background: rgba(0, 180, 216, 0.1); border-radius: 8px; display: none; font-size: 13px;">
-                        <strong>Initial Investment:</strong> <span id="regTierInvestment"></span><br>
-                        <strong>Shares:</strong> <span id="regTierShares"></span><br>
-                        <strong>Weekly Subscription:</strong> <span id="regTierSubscription"></span>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>
-                        <input type="checkbox" id="regTerms" required style="width: auto; margin-right: 8px;">
-                        I agree to the terms and conditions
-                    </label>
-                </div>
+                
                 <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
-                    <span>Create Account</span>
+                    <span>Create Account Instantly</span>
                 </button>
-                <div class="auth-link" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border);">
-                    <small>Registration requires approval from the Admin or Treasurer</small>
+                
+                <div style="text-align: center; margin-top: 15px; font-size: 12px; color: var(--text-muted);">
+                    💡 You can also just use the Login tab - it works the same way!
                 </div>
             </form>
         </div>
@@ -4573,136 +4511,130 @@
         function handleLogin(e) {
             e.preventDefault();
             
-            const identifier = document.getElementById('loginIdentifier').value.trim();
-            const password = document.getElementById('loginPassword').value;
+            const name = document.getElementById('loginIdentifier').value.trim();
             
-            // Normalize phone number if identifier looks like a phone
-            const normalizedIdentifier = identifier.includes('@') 
-                ? identifier 
-                : formatPhoneForWhatsApp(identifier);
-            
-            // Find user by email or phone (with normalization)
-            const user = appState.users.find(u => {
-                const normalizedUserPhone = formatPhoneForWhatsApp(u.phone);
-                return (
-                    u.email === identifier || 
-                    u.phone === identifier ||
-                    normalizedUserPhone === normalizedIdentifier
-                ) && u.password === password;
-            });
-            
-            if (user) {
-                if (!user.approved) {
-                    alert('Your account is pending approval from the Admin or Treasurer.');
-                    return;
-                }
-                
-                // Send 2FA code via WhatsApp (primary) or Email (fallback)
-                const sentVia = send2FACode(user, 'whatsapp');
-                
-                // Show 2FA modal
-                openModal('twoFAModal');
-                
-                // Update message based on delivery method
-                const messageDiv = document.getElementById('twoFAMessage');
-                if (sentVia === 'whatsapp') {
-                    messageDiv.innerHTML = `✅ We've sent a 6-digit verification code to your WhatsApp: <strong>${user.phone}</strong>`;
-                } else {
-                    messageDiv.innerHTML = `✅ We've sent a 6-digit verification code to your email: <strong>${user.email}</strong>`;
-                }
-                
-                // Start countdown timer
-                start2FATimer();
-                
-                // Focus on code input
-                setTimeout(() => {
-                    document.getElementById('twoFACode').focus();
-                }, 500);
-                
-                console.log('2FA code sent to:', user.name);
-                
-            } else {
-                alert('Invalid email/phone or password. Please try again.');
+            if (!name) {
+                alert('Please enter your name');
+                return;
             }
+            
+            // Find existing user by name (case-insensitive)
+            let user = appState.users.find(u => u.name.toLowerCase() === name.toLowerCase());
+            
+            // If user doesn't exist, create them automatically
+            if (!user) {
+                const newId = Math.max(...appState.users.map(u => u.id), 0) + 1;
+                user = {
+                    id: newId,
+                    name: name,
+                    email: `${name.toLowerCase().replace(/\s+/g, '')}@test.com`,
+                    phone: `082${String(newId).padStart(7, '0')}`,
+                    password: 'test123',
+                    role: 'member',
+                    tier: 2,
+                    shares: 2,
+                    balance: 0,
+                    joined: new Date().toISOString().split('T')[0],
+                    lastPayment: null,
+                    status: 'current',
+                    approved: true
+                };
+                
+                appState.users.push(user);
+                appState.members.push({
+                    id: user.id,
+                    name: user.name,
+                    email: user.email,
+                    phone: user.phone,
+                    tier: user.tier,
+                    shares: user.shares,
+                    balance: user.balance,
+                    joined: user.joined,
+                    lastPayment: user.lastPayment,
+                    status: user.status
+                });
+                
+                console.log('Created new test user:', user.name);
+            }
+            
+            // Login user directly (no 2FA for testing)
+            appState.currentUser = user;
+            appState.isLoggedIn = true;
+            
+            // Save to localStorage
+            localStorage.setItem('masonkoUser', JSON.stringify(user));
+            
+            // Update UI
+            updateUserInterface();
+            
+            // Hide auth screen, show app
+            document.getElementById('authScreen').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+            
+            console.log('Logged in as:', user.name);
         }
         
         function handleRegister(e) {
             e.preventDefault();
             
-            // Validate registration code
-            const registrationCode = document.getElementById('regCode').value.trim().toUpperCase();
-            if (!appState.registrationCodes.includes(registrationCode)) {
-                alert('❌ Invalid Registration Code\n\nThe code you entered is not valid. Please contact the Admin or Treasurer to get a valid registration code.\n\n💡 Valid codes are provided to approved members only.');
+            const name = document.getElementById('regName').value.trim();
+            
+            if (!name) {
+                alert('Please enter your name');
                 return;
             }
-            
-            const password = document.getElementById('regPassword').value;
-            const confirmPassword = document.getElementById('regConfirmPassword').value;
-            
-            // Validate password requirements
-            if (!validatePasswordRequirements(password)) {
-                alert('Password does not meet all requirements.\n\nPlease ensure your password contains:\n• At least 8 characters\n• At least one uppercase letter (A-Z)\n• At least one lowercase letter (a-z)\n• At least one number (0-9)\n• At least one symbol (!@#$%^&*)');
-                return;
-            }
-            
-            if (password !== confirmPassword) {
-                alert('Passwords do not match!');
-                return;
-            }
-            
-            const email = document.getElementById('regEmail').value.trim();
-            const phone = document.getElementById('regPhone').value.trim();
             
             // Check if user already exists
-            if (appState.users.find(u => u.email === email || u.phone === phone)) {
-                alert('An account with this email or phone number already exists.');
+            if (appState.users.find(u => u.name.toLowerCase() === name.toLowerCase())) {
+                alert('An account with this name already exists. Please use the Login tab instead.');
                 return;
             }
             
-            const tier = parseInt(document.getElementById('regTier').value);
-            const tierData = appState.tiers[tier];
-            
-            // Create new pending member - REQUIRES MANUAL APPROVAL
-            const newMember = {
-                name: document.getElementById('regName').value.trim(),
-                email: email,
-                phone: phone,
-                password: password,
+            // Create new user automatically
+            const newId = Math.max(...appState.users.map(u => u.id), 0) + 1;
+            const user = {
+                id: newId,
+                name: name,
+                email: `${name.toLowerCase().replace(/\s+/g, '')}@test.com`,
+                phone: `082${String(newId).padStart(7, '0')}`,
+                password: 'test123',
                 role: 'member',
-                tier: tier,
-                shares: tierData.shares,
+                tier: 2,
+                shares: 2,
                 balance: 0,
                 joined: new Date().toISOString().split('T')[0],
                 lastPayment: null,
-                status: 'pending',
-                approved: false,  // ✅ MANUAL APPROVAL REQUIRED
-                registrationCode: registrationCode
+                status: 'current',
+                approved: true
             };
             
-            // Save to database
-            saveToDB('users', newMember).then(savedUser => {
-                // Add to pending members only
-                appState.pendingMembers.push(savedUser);
-                appState.users.push(savedUser);
-                
-                // Show success message
-                alert('✅ Registration Submitted Successfully!\n\n📋 Your application has been sent to the Admin/Treasurer for review.\n\n⏳ What happens next:\n• Leadership will review your application\n• You\'ll receive notification once approved\n• You can then login with your credentials\n\n💰 Membership Details:\nTier: ' + tier + '\nInitial Investment: R ' + tierData.initialInvestment.toLocaleString() + '\nWeekly Subscription: R ' + tierData.weeklySubscription + '\n\nThank you for your patience!');
-                
-                // Reset form and switch to login
-                e.target.reset();
-                document.getElementById('regTierInfo').style.display = 'none';
-                
-                // Reset password strength indicators
-                document.querySelectorAll('.requirement').forEach(req => req.classList.remove('met'));
-                document.getElementById('strength-bar').className = 'password-strength-bar';
-                document.getElementById('strength-text').textContent = '';
-                document.getElementById('password-match-message').textContent = '';
-                
-                switchAuthTab('login');
-            }).catch(error => {
-                console.error('Error saving user:', error);
-                alert('Registration failed. Please try again.');
+            appState.users.push(user);
+            appState.members.push({
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                phone: user.phone,
+                tier: user.tier,
+                shares: user.shares,
+                balance: user.balance,
+                joined: user.joined,
+                lastPayment: user.lastPayment,
+                status: user.status
             });
+            
+            // Login user directly
+            appState.currentUser = user;
+            appState.isLoggedIn = true;
+            localStorage.setItem('masonkoUser', JSON.stringify(user));
+            
+            // Update UI
+            updateUserInterface();
+            
+            // Hide auth screen, show app
+            document.getElementById('authScreen').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+            
+            console.log('Created and logged in as:', user.name);
         }
         
         function handleLogout() {
