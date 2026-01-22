@@ -1802,6 +1802,72 @@
             color: var(--text);
             line-height: 1.6;
         }
+        
+        /* 🏆 Points System Styles */
+        .points-card {
+            background: linear-gradient(135deg, rgba(10, 26, 42, 0.8), rgba(0, 50, 80, 0.6));
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .tier-diamond {
+            animation: diamondShine 3s ease-in-out infinite;
+        }
+        
+        @keyframes diamondShine {
+            0%, 100% { box-shadow: 0 4px 20px rgba(0, 217, 255, 0.3); }
+            50% { box-shadow: 0 4px 30px rgba(0, 217, 255, 0.6); }
+        }
+        
+        .tier-platinum {
+            animation: platinumGlow 3s ease-in-out infinite;
+        }
+        
+        @keyframes platinumGlow {
+            0%, 100% { box-shadow: 0 4px 20px rgba(229, 228, 226, 0.3); }
+            50% { box-shadow: 0 4px 30px rgba(229, 228, 226, 0.5); }
+        }
+        
+        .tier-gold {
+            animation: goldGlow 3s ease-in-out infinite;
+        }
+        
+        @keyframes goldGlow {
+            0%, 100% { box-shadow: 0 4px 20px rgba(255, 215, 0, 0.3); }
+            50% { box-shadow: 0 4px 30px rgba(255, 215, 0, 0.6); }
+        }
+        
+        .history-entry {
+            transition: transform 0.2s ease;
+        }
+        
+        .history-entry:hover {
+            transform: translateX(5px);
+        }
+        
+        @media (max-width: 768px) {
+            .points-card {
+                padding: 15px;
+            }
+            
+            .tier-badge {
+                padding: 15px !important;
+            }
+            
+            .tier-badge div[style*="font-size: 48px"] {
+                font-size: 36px !important;
+            }
+            
+            .tier-badge div[style*="font-size: 24px"] {
+                font-size: 18px !important;
+            }
+            
+            .tier-badge div[style*="font-size: 42px"] {
+                font-size: 32px !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1948,7 +2014,26 @@
         <div class="content-area">
             <!-- Dashboard View -->
             <div id="dashboard" class="view active">
+                <!-- Demo Mode Banner -->
+                <div style="background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 165, 0, 0.2)); border: 2px solid var(--gold); border-radius: 12px; padding: 15px 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px;">
+                    <span style="font-size: 36px;">🧪</span>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 700; font-size: 18px; color: var(--gold); margin-bottom: 5px;">
+                            Demo Mode Active
+                        </div>
+                        <div style="font-size: 13px; color: var(--text-muted); line-height: 1.5;">
+                            Testing environment • All points changes are simulated • Use Demo Controls to test the system
+                        </div>
+                    </div>
+                    <button onclick="showDemoControls()" class="btn btn-primary" style="background: var(--gold); border: none; white-space: nowrap;">
+                        <span>🎮 Demo Controls</span>
+                    </button>
+                </div>
+                
                 <h2>Investment Overview</h2>
+                
+                <!-- Points System Widget -->
+                <div id="pointsWidget" style="margin-bottom: 30px;"></div>
                 
                 <div class="ai-insight">
                     <div class="ai-insight-title">AI Investment Insight</div>
@@ -4116,6 +4201,17 @@
                 { id: 9, name: 'Secretary User', email: 'secretary@masonko.com', phone: '0809012345', password: 'secretary123', tier: 2, shares: 2, balance: 9800, joined: '2024-02-15', lastPayment: '2026-01-13', status: 'current', approved: true }
             ],
             pendingMembers: [],
+            // 🏆 Points System Configuration
+            pointsTiers: [
+                { name: 'Diamond', min: 180, max: 500, color: '#00D9FF', icon: '💎' },
+                { name: 'Platinum', min: 150, max: 179, color: '#E5E4E2', icon: '🏆' },
+                { name: 'Gold', min: 120, max: 149, color: '#FFD700', icon: '⭐' },
+                { name: 'Silver', min: 90, max: 119, color: '#C0C0C0', icon: '🥈' },
+                { name: 'Bronze', min: 60, max: 89, color: '#CD7F32', icon: '🥉' },
+                { name: 'Warning', min: 30, max: 59, color: '#FF6B35', icon: '⚠️' },
+                { name: 'Probation', min: 0, max: 29, color: '#DC143C', icon: '🚫' }
+            ],
+            pointsHistory: [],
             // Elected positions - can be changed/reassigned
             electedPositions: {
                 chairperson: { memberId: 1, electedDate: '2024-01-20', term: '2024-2025' },
@@ -4192,6 +4288,653 @@
         function maskPhone(phone) {
             // Testing mode - show full phone numbers
             return phone || 'No phone';
+        }
+        
+        // 🏆 POINTS SYSTEM FUNCTIONS
+        
+        // Initialize member points if not exists
+        function initializeMemberPoints(member) {
+            if (!member.points) member.points = 100;
+            if (!member.pointsHistory) member.pointsHistory = [];
+            if (!member.pointsTier) member.pointsTier = getMemberTier(member.points);
+            if (!member.paymentStreak) member.paymentStreak = 0;
+            if (!member.meetingsAttended) member.meetingsAttended = 0;
+            return member;
+        }
+        
+        // Get member's tier based on points
+        function getMemberTier(points) {
+            for (let tier of appState.pointsTiers) {
+                if (points >= tier.min && points <= tier.max) {
+                    return tier.name;
+                }
+            }
+            return 'Probation';
+        }
+        
+        // Get tier data
+        function getTierData(tierName) {
+            return appState.pointsTiers.find(t => t.name === tierName) || appState.pointsTiers[6];
+        }
+        
+        // Get tier benefits
+        function getTierBenefits(tierName) {
+            const benefits = {
+                'Diamond': {
+                    interestDiscount: 0.10,
+                    loanAmountBonus: 0.20,
+                    votingWeight: 1.5,
+                    priority: 1,
+                    description: 'Priority loans, 10% off interest, +20% loan amount, 1.5x voting'
+                },
+                'Platinum': {
+                    interestDiscount: 0.05,
+                    loanAmountBonus: 0.10,
+                    votingWeight: 1.2,
+                    priority: 2,
+                    description: 'Fast processing, 5% off interest, +10% loan amount, 1.2x voting'
+                },
+                'Gold': {
+                    interestDiscount: 0,
+                    loanAmountBonus: 0,
+                    votingWeight: 1.0,
+                    priority: 3,
+                    description: 'Standard loans, recognition badge, priority support'
+                },
+                'Silver': {
+                    interestDiscount: 0,
+                    loanAmountBonus: 0,
+                    votingWeight: 1.0,
+                    priority: 4,
+                    description: 'Standard benefits, basic support'
+                },
+                'Bronze': {
+                    interestDiscount: 0,
+                    loanAmountBonus: 0,
+                    votingWeight: 0.9,
+                    priority: 5,
+                    description: 'Basic benefits only, 0.9x voting'
+                },
+                'Warning': {
+                    interestDiscount: 0,
+                    loanAmountBonus: -0.10,
+                    votingWeight: 0.8,
+                    priority: 6,
+                    description: 'Loan restrictions, mandatory review, 0.8x voting'
+                },
+                'Probation': {
+                    interestDiscount: 0,
+                    loanAmountBonus: -0.20,
+                    votingWeight: 0.5,
+                    priority: 7,
+                    loansBlocked: true,
+                    description: 'No new loans, improvement plan required, 0.5x voting'
+                }
+            };
+            return benefits[tierName] || benefits['Probation'];
+        }
+        
+        // Award or deduct points
+        function awardPoints(memberId, points, reason) {
+            const member = appState.members.find(m => m.id === memberId);
+            const user = appState.users.find(u => u.id === memberId);
+            
+            if (!member) return;
+            
+            initializeMemberPoints(member);
+            if (user) initializeMemberPoints(user);
+            
+            const oldPoints = member.points;
+            const oldTier = member.pointsTier;
+            
+            // Calculate new points (0 min, 500 max)
+            const newPoints = Math.min(Math.max(oldPoints + points, 0), 500);
+            const newTier = getMemberTier(newPoints);
+            
+            // Update member
+            member.points = newPoints;
+            member.pointsTier = newTier;
+            member.lastPointsUpdate = new Date().toISOString().split('T')[0];
+            
+            if (user) {
+                user.points = newPoints;
+                user.pointsTier = newTier;
+                user.lastPointsUpdate = member.lastPointsUpdate;
+            }
+            
+            // Log to history
+            const historyEntry = {
+                id: (member.pointsHistory.length + 1),
+                date: new Date().toISOString(),
+                points: points,
+                reason: reason,
+                oldPoints: oldPoints,
+                newPoints: newPoints,
+                oldTier: oldTier,
+                newTier: newTier
+            };
+            
+            member.pointsHistory.unshift(historyEntry);
+            if (user && user.pointsHistory) user.pointsHistory.unshift(historyEntry);
+            
+            // Keep only last 50 entries
+            if (member.pointsHistory.length > 50) member.pointsHistory = member.pointsHistory.slice(0, 50);
+            
+            // Notify on tier change
+            if (oldTier !== newTier) {
+                const isUpgrade = appState.pointsTiers.findIndex(t => t.name === newTier) < 
+                                  appState.pointsTiers.findIndex(t => t.name === oldTier);
+                
+                showNotification(
+                    `🏆 ${isUpgrade ? 'Congratulations!' : 'Tier Update'} You've moved to ${newTier} tier!`,
+                    isUpgrade ? 'success' : 'warning'
+                );
+            }
+            
+            console.log(`Points ${points > 0 ? 'awarded' : 'deducted'}: ${points} to ${member.name}. New total: ${newPoints}. Reason: ${reason}`);
+            
+            // Update UI if current user
+            if (appState.currentUser && appState.currentUser.id === memberId) {
+                renderPointsDashboard();
+            }
+        }
+        
+        // Check payment compliance
+        function checkPaymentCompliance(memberId) {
+            const member = appState.members.find(m => m.id === memberId);
+            if (!member) return;
+            
+            initializeMemberPoints(member);
+            
+            const today = new Date();
+            const lastPayment = member.lastPayment ? new Date(member.lastPayment) : null;
+            
+            if (!lastPayment) {
+                awardPoints(memberId, -20, 'Missing payment - no payment history');
+                return;
+            }
+            
+            const daysSincePayment = Math.floor((today - lastPayment) / (1000 * 60 * 60 * 24));
+            
+            // Weekly payment due every 7 days
+            if (daysSincePayment <= 7) {
+                awardPoints(memberId, 5, 'On-time weekly payment');
+                
+                member.paymentStreak = (member.paymentStreak || 0) + 1;
+                if (member.paymentStreak >= 4) {
+                    awardPoints(memberId, 20, '🎉 4-week payment streak bonus!');
+                    member.paymentStreak = 0;
+                }
+            } else if (daysSincePayment <= 14) {
+                awardPoints(memberId, -5, `Late payment (${daysSincePayment} days)`);
+                member.paymentStreak = 0;
+            } else if (daysSincePayment <= 21) {
+                awardPoints(memberId, -10, `Late payment (${daysSincePayment} days)`);
+                member.paymentStreak = 0;
+            } else {
+                awardPoints(memberId, -15, `Seriously late payment (${daysSincePayment} days)`);
+                member.paymentStreak = 0;
+            }
+        }
+        
+        // Record meeting attendance
+        function recordMeetingAttendance(memberId, attended) {
+            const member = appState.members.find(m => m.id === memberId);
+            if (!member) return;
+            
+            initializeMemberPoints(member);
+            
+            if (attended) {
+                awardPoints(memberId, 8, 'Meeting attendance');
+                member.meetingsAttended = (member.meetingsAttended || 0) + 1;
+            } else {
+                awardPoints(memberId, -10, 'Missed meeting (unexcused)');
+            }
+        }
+        
+        // Record loan repayment
+        function recordLoanRepayment(memberId, onTime, fullRepayment = false) {
+            if (onTime) {
+                awardPoints(memberId, 10, 'On-time loan repayment');
+                if (fullRepayment) {
+                    awardPoints(memberId, 50, '🎉 Full loan repayment completed!');
+                }
+            } else {
+                awardPoints(memberId, -15, 'Late loan repayment');
+            }
+        }
+        
+        // Record voting
+        function recordVote(memberId) {
+            awardPoints(memberId, 5, 'Voting in election');
+        }
+        
+        // Record nomination
+        function recordNomination(memberId) {
+            awardPoints(memberId, 3, 'Nominating candidate');
+        }
+        
+        // Get next tier for member
+        function getNextTier(points) {
+            const currentTierIndex = appState.pointsTiers.findIndex(t => points >= t.min && points <= t.max);
+            if (currentTierIndex > 0) {
+                return appState.pointsTiers[currentTierIndex - 1];
+            }
+            return null;
+        }
+        
+        // Render points dashboard widget
+        function renderPointsDashboard() {
+            const user = appState.currentUser;
+            if (!user) return;
+            
+            initializeMemberPoints(user);
+            
+            const points = user.points || 100;
+            const tier = user.pointsTier || getMemberTier(points);
+            const tierData = getTierData(tier);
+            const benefits = getTierBenefits(tier);
+            const nextTier = getNextTier(points);
+            const pointsToNext = nextTier ? nextTier.min - points : 0;
+            const progressPercent = nextTier ? Math.min((points / nextTier.min) * 100, 100) : 100;
+            
+            // Get recent activity (this week)
+            const thisWeek = user.pointsHistory ? user.pointsHistory.filter(h => {
+                const entryDate = new Date(h.date);
+                const weekAgo = new Date();
+                weekAgo.setDate(weekAgo.getDate() - 7);
+                return entryDate >= weekAgo;
+            }) : [];
+            
+            const weeklyTotal = thisWeek.reduce((sum, h) => sum + h.points, 0);
+            
+            const widget = document.getElementById('pointsWidget');
+            if (!widget) return;
+            
+            widget.innerHTML = `
+                <div class="points-card">
+                    <h3 style="margin: 0 0 20px 0; display: flex; align-items: center; gap: 10px;">
+                        <span>🏆</span>
+                        <span>Your Compliance Score</span>
+                    </h3>
+                    
+                    <div class="tier-badge tier-${tier.toLowerCase()}" style="background: linear-gradient(135deg, ${tierData.color}, ${tierData.color}99); padding: 25px; border-radius: 15px; text-align: center; margin-bottom: 20px; box-shadow: 0 4px 20px ${tierData.color}33;">
+                        <div style="font-size: 48px; margin-bottom: 10px;">${tierData.icon}</div>
+                        <div style="font-size: 24px; font-weight: 700; color: var(--text); margin-bottom: 5px;">${tier} Tier</div>
+                        <div style="font-size: 42px; font-weight: 700; color: var(--text);">${points} Points</div>
+                    </div>
+                    
+                    ${nextTier ? `
+                        <div style="margin-bottom: 20px;">
+                            <div style="background: rgba(0,0,0,0.2); border-radius: 10px; height: 20px; overflow: hidden; margin-bottom: 8px;">
+                                <div style="background: linear-gradient(90deg, var(--accent), var(--success)); height: 100%; width: ${progressPercent}%; transition: width 0.5s ease;"></div>
+                            </div>
+                            <div style="text-align: center; color: var(--text-muted); font-size: 13px;">
+                                ${pointsToNext} points to ${nextTier.name} ${nextTier.icon}
+                            </div>
+                        </div>
+                    ` : `
+                        <div style="text-align: center; padding: 15px; background: rgba(0, 180, 216, 0.1); border-radius: 10px; margin-bottom: 20px;">
+                            <span style="font-size: 24px;">🎉</span>
+                            <div style="font-weight: 600; color: var(--success);">Maximum tier reached!</div>
+                        </div>
+                    `}
+                    
+                    <div style="background: rgba(255,255,255,0.05); border-radius: 10px; padding: 15px; margin-bottom: 15px;">
+                        <div style="font-weight: 600; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+                            <span>📊</span>
+                            <span>This Week: ${weeklyTotal > 0 ? '+' : ''}${weeklyTotal} points</span>
+                        </div>
+                        ${thisWeek.slice(0, 3).map(h => `
+                            <div style="display: flex; align-items: center; gap: 8px; padding: 5px 0; font-size: 13px; color: var(--text-muted);">
+                                <span>${h.points > 0 ? '✅' : '❌'}</span>
+                                <span style="font-weight: 600; min-width: 35px; ${h.points > 0 ? 'color: var(--success)' : 'color: var(--danger)'};">${h.points > 0 ? '+' : ''}${h.points}</span>
+                                <span>${h.reason}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <div style="background: rgba(255,215,0,0.1); border-radius: 10px; padding: 15px; margin-bottom: 15px; border-left: 3px solid var(--gold);">
+                        <div style="font-weight: 600; margin-bottom: 8px; color: var(--gold);">💎 Your Benefits:</div>
+                        <div style="font-size: 12px; color: var(--text-muted); line-height: 1.6;">
+                            ${benefits.description}
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <button onclick="viewPointsHistory()" class="btn btn-secondary" style="width: 100%;">
+                            <span>📜 History</span>
+                        </button>
+                        <button onclick="viewAllTiers()" class="btn btn-secondary" style="width: 100%;">
+                            <span>🏅 All Tiers</span>
+                        </button>
+                    </div>
+                    
+                    <button onclick="showDemoControls()" class="btn btn-primary" style="width: 100%; margin-top: 10px; background: linear-gradient(135deg, var(--gold), #FFA500); border: none;">
+                        <span>🧪 Demo Controls</span>
+                    </button>
+                </div>
+            `;
+        }
+        
+        // View points history modal
+        function viewPointsHistory() {
+            const user = appState.currentUser;
+            if (!user) return;
+            
+            initializeMemberPoints(user);
+            
+            const historyHTML = (user.pointsHistory || [])
+                .slice(0, 30)
+                .map(entry => `
+                    <div class="history-entry ${entry.points > 0 ? 'positive' : 'negative'}" style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 8px; margin: 8px 0; ${entry.points > 0 ? 'background: rgba(0,180,0,0.1); border-left: 3px solid var(--success);' : 'background: rgba(220,20,60,0.1); border-left: 3px solid var(--danger);'}">
+                        <span style="font-size: 20px;">${entry.points > 0 ? '✅' : '❌'}</span>
+                        <span style="font-weight: 700; min-width: 50px; font-size: 16px; ${entry.points > 0 ? 'color: var(--success)' : 'color: var(--danger)'};">${entry.points > 0 ? '+' : ''}${entry.points}</span>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600;">${entry.reason}</div>
+                            <div style="font-size: 12px; color: var(--text-muted);">
+                                ${new Date(entry.date).toLocaleDateString()} • ${entry.oldPoints} → ${entry.newPoints} pts
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            
+            const modalContent = `
+                <h2 style="display: flex; align-items: center; gap: 10px;">
+                    <span>📊</span>
+                    <span>Points History</span>
+                </h2>
+                <div style="margin: 20px 0; padding: 15px; background: rgba(0,180,216,0.1); border-radius: 10px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div>
+                            <div style="font-size: 12px; color: var(--text-muted);">Current Points</div>
+                            <div style="font-size: 28px; font-weight: 700; color: var(--accent);">${user.points || 100}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: var(--text-muted);">Current Tier</div>
+                            <div style="font-size: 28px; font-weight: 700; color: var(--gold);">${user.pointsTier || 'Silver'}</div>
+                        </div>
+                    </div>
+                </div>
+                <div style="max-height: 400px; overflow-y: auto;">
+                    ${historyHTML || '<p style="text-align: center; color: var(--text-muted); padding: 40px;">No history yet. Keep participating to earn points!</p>'}
+                </div>
+                <button onclick="closeModal('customModal')" class="btn btn-secondary" style="width: 100%; margin-top: 15px;">
+                    <span>Close</span>
+                </button>
+            `;
+            
+            showCustomModal(modalContent);
+        }
+        
+        // View all tiers info
+        function viewAllTiers() {
+            const tiersHTML = appState.pointsTiers.map(tier => {
+                const benefits = getTierBenefits(tier.name);
+                return `
+                    <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 15px; margin: 10px 0; border-left: 4px solid ${tier.color};">
+                        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
+                            <span style="font-size: 36px;">${tier.icon}</span>
+                            <div style="flex: 1;">
+                                <div style="font-size: 20px; font-weight: 700; color: ${tier.color};">${tier.name}</div>
+                                <div style="font-size: 14px; color: var(--text-muted);">${tier.min} - ${tier.max === 500 ? '500+' : tier.max} points</div>
+                            </div>
+                        </div>
+                        <div style="font-size: 13px; color: var(--text-muted); line-height: 1.6;">
+                            ${benefits.description}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            const modalContent = `
+                <h2 style="display: flex; align-items: center; gap: 10px;">
+                    <span>🏅</span>
+                    <span>All Tiers & Benefits</span>
+                </h2>
+                <p style="color: var(--text-muted); margin-bottom: 20px;">
+                    Earn points through compliance and participation to unlock better benefits!
+                </p>
+                <div style="max-height: 500px; overflow-y: auto;">
+                    ${tiersHTML}
+                </div>
+                <button onclick="closeModal('customModal')" class="btn btn-secondary" style="width: 100%; margin-top: 15px;">
+                    <span>Close</span>
+                </button>
+            `;
+            
+            showCustomModal(modalContent);
+        }
+        
+        // Show custom modal
+        function showCustomModal(content) {
+            let modal = document.getElementById('customModal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'customModal';
+                modal.className = 'modal';
+                modal.style.zIndex = '10000';
+                modal.innerHTML = '<div class="modal-content" id="customModalContent"></div>';
+                document.body.appendChild(modal);
+            }
+            document.getElementById('customModalContent').innerHTML = content;
+            modal.classList.add('active');
+        }
+        
+        // 🧪 DEMO MODE FUNCTIONS
+        
+        // Initialize demo data with sample points
+        function initializeDemoPointsData() {
+            // Only initialize once
+            if (localStorage.getItem('demoPointsInitialized')) return;
+            
+            // Give existing users varied points for demo
+            const demoPoints = [195, 165, 142, 138, 108, 75, 45];
+            
+            appState.users.forEach((user, index) => {
+                if (index < demoPoints.length) {
+                    user.points = demoPoints[index];
+                    user.pointsTier = getMemberTier(user.points);
+                }
+            });
+            
+            appState.members.forEach((member, index) => {
+                if (index < demoPoints.length) {
+                    member.points = demoPoints[index];
+                    member.pointsTier = getMemberTier(member.points);
+                }
+            });
+            
+            // Generate sample history for current user
+            if (appState.currentUser) {
+                generateSampleHistory(appState.currentUser);
+            }
+            
+            localStorage.setItem('demoPointsInitialized', 'true');
+            console.log('🧪 Demo points data initialized');
+        }
+        
+        // Generate sample history
+        function generateSampleHistory(user) {
+            const sampleHistory = [
+                { points: 5, reason: 'On-time weekly payment' },
+                { points: 8, reason: 'Meeting attendance' },
+                { points: 5, reason: 'Voting in election' },
+                { points: 10, reason: 'On-time loan repayment' },
+                { points: -5, reason: 'Late payment (3 days)' },
+                { points: 20, reason: '🎉 4-week payment streak bonus!' },
+                { points: 8, reason: 'Meeting attendance' },
+                { points: 5, reason: 'On-time weekly payment' },
+                { points: 3, reason: 'Nominating candidate' },
+                { points: 5, reason: 'On-time weekly payment' }
+            ];
+            
+            const startDate = new Date();
+            startDate.setDate(startDate.getDate() - 30);
+            
+            user.pointsHistory = sampleHistory.map((entry, index) => {
+                const entryDate = new Date(startDate);
+                entryDate.setDate(entryDate.getDate() + (index * 3));
+                
+                const oldPoints = index === 0 ? (user.points - entry.points) : user.points;
+                const newPoints = oldPoints + entry.points;
+                
+                return {
+                    id: index + 1,
+                    date: entryDate.toISOString(),
+                    points: entry.points,
+                    reason: entry.reason,
+                    oldPoints: oldPoints,
+                    newPoints: newPoints,
+                    oldTier: getMemberTier(oldPoints),
+                    newTier: getMemberTier(newPoints)
+                };
+            });
+        }
+        
+        // Demo: Simulate earning points
+        function demoEarnPoints() {
+            const scenarios = [
+                { points: 5, reason: '🧪 DEMO: On-time payment' },
+                { points: 8, reason: '🧪 DEMO: Meeting attendance' },
+                { points: 10, reason: '🧪 DEMO: Loan repayment' },
+                { points: 5, reason: '🧪 DEMO: Voting participation' },
+                { points: 20, reason: '🧪 DEMO: Payment streak bonus!' }
+            ];
+            
+            const random = scenarios[Math.floor(Math.random() * scenarios.length)];
+            awardPoints(appState.currentUser.id, random.points, random.reason);
+            
+            showNotification(`+${random.points} points earned!`, 'success');
+        }
+        
+        // Demo: Simulate losing points
+        function demoLosePoints() {
+            const scenarios = [
+                { points: -5, reason: '🧪 DEMO: Late payment (5 days)' },
+                { points: -10, reason: '🧪 DEMO: Missed meeting' },
+                { points: -15, reason: '🧪 DEMO: Late loan payment' },
+                { points: -5, reason: '🧪 DEMO: Not voting' }
+            ];
+            
+            const random = scenarios[Math.floor(Math.random() * scenarios.length)];
+            awardPoints(appState.currentUser.id, random.points, random.reason);
+            
+            showNotification(`${random.points} points deducted`, 'warning');
+        }
+        
+        // Demo: Add 4-week streak bonus
+        function demoAddStreak() {
+            awardPoints(appState.currentUser.id, 20, '🧪 DEMO: 4-week payment streak bonus!');
+            showNotification('🎉 Streak bonus earned!', 'success');
+        }
+        
+        // Demo: Simulate tier upgrade
+        function demoTierUpgrade() {
+            const currentPoints = appState.currentUser.points || 100;
+            const nextTier = getNextTier(currentPoints);
+            
+            if (nextTier) {
+                const pointsNeeded = nextTier.min - currentPoints;
+                awardPoints(appState.currentUser.id, pointsNeeded, `🧪 DEMO: Tier upgrade to ${nextTier.name}!`);
+                showNotification(`🎉 Upgraded to ${nextTier.name} tier!`, 'success');
+            } else {
+                showNotification('Already at maximum tier!', 'info');
+            }
+        }
+        
+        // Demo: Reset points
+        function demoResetPoints() {
+            if (confirm('Reset points to 100 (Silver tier)?')) {
+                const oldPoints = appState.currentUser.points || 100;
+                appState.currentUser.points = 100;
+                appState.currentUser.pointsTier = 'Silver';
+                appState.currentUser.pointsHistory = [];
+                
+                generateSampleHistory(appState.currentUser);
+                
+                renderPointsDashboard();
+                showNotification('Points reset to 100 (Silver)', 'info');
+            }
+        }
+        
+        // Show demo controls
+        function showDemoControls() {
+            const modalContent = `
+                <h2 style="display: flex; align-items: center; gap: 10px;">
+                    <span>🧪</span>
+                    <span>Demo Controls</span>
+                </h2>
+                
+                <p style="color: var(--text-muted); margin-bottom: 20px;">
+                    Test the points system with these demo actions. Changes happen instantly!
+                </p>
+                
+                <div style="display: grid; gap: 15px;">
+                    <div style="background: rgba(0,180,0,0.1); padding: 15px; border-radius: 10px; border-left: 3px solid var(--success);">
+                        <div style="font-weight: 700; margin-bottom: 10px; color: var(--success);">✅ Earn Points</div>
+                        <button onclick="demoEarnPoints(); closeModal('customModal');" class="btn btn-success" style="width: 100%;">
+                            <span>+ Random Points (5-20)</span>
+                        </button>
+                        <p style="font-size: 12px; color: var(--text-muted); margin: 8px 0 0 0;">
+                            Simulates: payments, meetings, voting, or bonuses
+                        </p>
+                    </div>
+                    
+                    <div style="background: rgba(255,100,50,0.1); padding: 15px; border-radius: 10px; border-left: 3px solid var(--danger);">
+                        <div style="font-weight: 700; margin-bottom: 10px; color: var(--danger);">❌ Lose Points</div>
+                        <button onclick="demoLosePoints(); closeModal('customModal');" class="btn btn-danger" style="width: 100%;">
+                            <span>- Random Points (5-15)</span>
+                        </button>
+                        <p style="font-size: 12px; color: var(--text-muted); margin: 8px 0 0 0;">
+                            Simulates: late payments, missed meetings, not voting
+                        </p>
+                    </div>
+                    
+                    <div style="background: rgba(255,215,0,0.1); padding: 15px; border-radius: 10px; border-left: 3px solid var(--gold);">
+                        <div style="font-weight: 700; margin-bottom: 10px; color: var(--gold);">🎉 Add Streak Bonus</div>
+                        <button onclick="demoAddStreak(); closeModal('customModal');" class="btn btn-primary" style="width: 100%; background: var(--gold);">
+                            <span>+ 20 Points (Streak Bonus)</span>
+                        </button>
+                        <p style="font-size: 12px; color: var(--text-muted); margin: 8px 0 0 0;">
+                            Simulates: 4-week payment streak achievement
+                        </p>
+                    </div>
+                    
+                    <div style="background: rgba(0,180,216,0.1); padding: 15px; border-radius: 10px; border-left: 3px solid var(--accent);">
+                        <div style="font-weight: 700; margin-bottom: 10px; color: var(--accent);">⬆️ Tier Upgrade</div>
+                        <button onclick="demoTierUpgrade(); closeModal('customModal');" class="btn btn-primary" style="width: 100%;">
+                            <span>Jump to Next Tier</span>
+                        </button>
+                        <p style="font-size: 12px; color: var(--text-muted); margin: 8px 0 0 0;">
+                            Instantly adds points needed for next tier
+                        </p>
+                    </div>
+                    
+                    <div style="background: rgba(100,100,100,0.2); padding: 15px; border-radius: 10px; border-left: 3px solid var(--text-muted);">
+                        <div style="font-weight: 700; margin-bottom: 10px; color: var(--text-muted);">🔄 Reset Points</div>
+                        <button onclick="demoResetPoints(); closeModal('customModal');" class="btn btn-secondary" style="width: 100%;">
+                            <span>Reset to 100 (Silver)</span>
+                        </button>
+                        <p style="font-size: 12px; color: var(--text-muted); margin: 8px 0 0 0;">
+                            Resets to starting points with fresh history
+                        </p>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px; padding: 15px; background: rgba(255,215,0,0.1); border-radius: 10px;">
+                    <div style="font-size: 13px; color: var(--text-muted);">
+                        <strong style="color: var(--gold);">💡 Demo Tip:</strong> Try earning points multiple times to see your tier upgrade! 
+                        Watch the progress bar, tier badge animations, and notifications.
+                    </div>
+                </div>
+                
+                <button onclick="closeModal('customModal')" class="btn btn-secondary" style="width: 100%; margin-top: 15px;">
+                    <span>Close</span>
+                </button>
+            `;
+            
+            showCustomModal(modalContent);
         }
         
         // Payment Proof Upload Functions
@@ -4541,6 +5284,9 @@
             // Login user directly (no 2FA for testing)
             appState.currentUser = user;
             appState.isLoggedIn = true;
+            
+            // 🧪 DEMO MODE: Initialize with sample points data
+            initializeDemoPointsData();
             
             // Save to localStorage
             localStorage.setItem('masonkoUser', JSON.stringify(user));
@@ -5087,6 +5833,9 @@
         function updateUserInterface() {
             if (!appState.currentUser) return;
             
+            // Initialize points for current user
+            initializeMemberPoints(appState.currentUser);
+            
             const initials = appState.currentUser.name.split(' ').map(n => n[0]).join('');
             document.getElementById('userAvatar').textContent = initials;
             
@@ -5100,6 +5849,9 @@
                 roleDisplay = primaryRole.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
             }
             document.getElementById('userRoleBadge').textContent = roleDisplay;
+            
+            // Render points dashboard
+            renderPointsDashboard();
             
             // Show Admin Panel button only for admin users
             const isAdmin = hasPermission(appState.currentUser.id, 'approve_members');
